@@ -1,17 +1,16 @@
-# examples/generate_vss_sample.py
 from PIL import Image, ImageDraw, ImageFont
 import random
 import os
 
-# 2x2 サブピクセルパターン (1=黒, 0=白)
+# --- 基本定義 ---
 PATTERNS = [
     [1,1,0,0], [1,0,1,0], [1,0,0,1],
     [0,1,1,0], [0,1,0,1], [0,0,1,1]
 ]
-
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
 
+# --- ユーティリティ ---
 def is_black(px):
     """px が int / (r,g,b) / (r,g,b,a) いずれでも黒かを判定"""
     if isinstance(px, int):
@@ -22,97 +21,104 @@ def is_black(px):
     return False
 
 def load_base_image(samples_rel_path="../samples/mijinko.png"):
-    """samplesフォルダの画像を読み込み（存在確認）"""
+    """サンプル画像を読み込む"""
     if not os.path.exists(samples_rel_path):
         raise FileNotFoundError(f"Sample image not found: {samples_rel_path}")
-    img = Image.open(samples_rel_path).convert("RGB")
-    return img
+    return Image.open(samples_rel_path).convert("RGB")
 
-def draw_text_on_image(base_img, text="Happy hacking!", margin_ratio=0.06, width_ratio=0.82):
-    """
-    base_img 上に text をちょうど良い幅と太さで描画して返す（RGB）。
-    - margin_ratio: 横の余白比率（画像幅に対する割合）
-    - width_ratio: テキストが占める幅の目標比率
-    """
-    w, h = base_img.size
-    margin = int(w * margin_ratio)
-    target_width = int(w * width_ratio)  # 目標テキスト幅
-
-    # フォント取得（環境によりパスが異なるが、DejaVuがあればそれを使う）
-    font_name_candidates = [
+def _load_font(preferred_size):
+    """フォントロード"""
+    cand = [
         "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
         "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
         "DejaVuSans-Bold.ttf",
         "DejaVuSans.ttf",
     ]
-    font = None
-    for fn in font_name_candidates:
+    for path in cand:
         try:
-            font = ImageFont.truetype(fn, size=40)
-            break
+            f = ImageFont.truetype(path, preferred_size)
+            f.path = path
+            return f
         except Exception:
-            font = None
-    if font is None:
-        # フォールバック: デフォルトフォント（サイズ調整が限定的）
-        font = ImageFont.load_default()
+            pass
+    f = ImageFont.load_default()
+    f.path = None
+    return f
 
-    draw = ImageDraw.Draw(base_img)
+# --- テキスト合成（下に配置） ---
+def compose_image_with_text(
+    base_img: Image.Image,
+    text: str = "Happy hacking!",
+    position: str = "below",           # 'below' or 'right'
+    gap_px: int = 12,
+    margin_px: int = 12,
+    width_ratio: float = 0.92,
+    max_text_h_ratio: float = 0.28,
+    stroke_width: int = 0      # ← デフォルトを 0 に
+):
+    w, h = base_img.size
+    draw_probe = ImageDraw.Draw(base_img)
+    font = _load_font(preferred_size=40)
 
-    # フォントサイズを動的に決定（大きめから縮めてフィットさせる）
-    max_size = int(h * 0.25)  # 高さの25%を上限に
-    min_size = 8
-    chosen_font = None
-    chosen_size = None
-    for size in range(max_size, min_size - 1, -1):
-        try:
-            f = ImageFont.truetype(font.path, size) if hasattr(font, "path") else ImageFont.load_default()
-        except Exception:
+    def choose_font_for_area(target_w, target_h):
+        max_size = max(10, int(min(target_h, target_w) * 0.9))
+        for size in range(max_size, 8, -1):
             try:
-                f = ImageFont.truetype("DejaVuSans.ttf", size)
+                f = ImageFont.truetype(font.path, size) if getattr(font, "path", None) else ImageFont.load_default()
             except Exception:
                 f = ImageFont.load_default()
-        # stroke_width をサイズに応じて少し付ける（太さの調整）
-        stroke = max(1, int(size * 0.06))
-        # bbox を取得して実際の幅を計算
-        bbox = draw.textbbox((0,0), text, font=f, stroke_width=stroke)
-        text_w = bbox[2] - bbox[0]
-        text_h = bbox[3] - bbox[1]
-        if text_w <= target_width and text_h <= h * 0.6:
-            chosen_font = f
-            chosen_size = size
-            chosen_stroke = stroke
-            break
+            # stroke を固定（潰れ防止）
+            stroke = stroke_width
+            bbox = draw_probe.textbbox((0,0), text, font=f, stroke_width=stroke)
+            tw, th = bbox[2]-bbox[0], bbox[3]-bbox[1]
+            if tw <= target_w and th <= target_h:
+                return f, stroke, (tw, th)
+        f = ImageFont.load_default()
+        stroke = 1
+        bbox = draw_probe.textbbox((0,0), text, font=f, stroke_width=stroke)
+        return f, stroke, (bbox[2]-bbox[0], bbox[3]-bbox[1])
 
-    # 万が一小さすぎて見えない場合は最小サイズを採用
-    if chosen_font is None:
-        chosen_size = max(min_size, int(max_size * 0.5))
-        try:
-            chosen_font = ImageFont.truetype(getattr(font, "path", "DejaVuSans.ttf"), chosen_size)
-        except Exception:
-            chosen_font = ImageFont.load_default()
-        chosen_stroke = max(1, int(chosen_size * 0.06))
+    if position == "right":
+        text_area_w = int(w * max_text_h_ratio)
+        text_area_w = max(text_area_w, 60)
+        target_w = int(text_area_w - margin_px*2)
+        target_h = int(h - margin_px*2)
+        font_use, stroke, (tw, th) = choose_font_for_area(int(target_w*width_ratio), target_h)
 
-    # 再度bboxを取得して配置座標を決定（中央寄せ）
-    bbox = draw.textbbox((0,0), text, font=chosen_font, stroke_width=chosen_stroke)
-    text_w = bbox[2] - bbox[0]
-    text_h = bbox[3] - bbox[1]
-    x = (w - text_w) // 2
-    # y は画像の上から少し下（上部に余白）、または下部に重ならないよう中央よりやや上目に配置
-    y = int((h - text_h) * 0.20)
+        out = Image.new("RGB", (w + gap_px + text_area_w, h), WHITE)
+        out.paste(base_img, (0, 0))
+        draw = ImageDraw.Draw(out)
+        ox = w + gap_px + margin_px + (target_w - tw)//2
+        oy = margin_px + (target_h - th)//2
+        draw.text((ox, oy), text, fill=BLACK, font=font_use, stroke_width=stroke, stroke_fill=BLACK)
+        return out
 
-    # 背景との視認性を上げるために軽い白縁（stroke_fill）を入れるのではなく
-    # 太さ（stroke_width）でテキストをはっきりさせる。
-    draw.text((x, y), text, fill=BLACK, font=chosen_font, stroke_width=chosen_stroke, stroke_fill=BLACK)
+    else:
+        text_area_h = int(h * max_text_h_ratio)
+        text_area_h = max(text_area_h, 40)
+        target_w = int(w - margin_px*2)
+        target_h = int(text_area_h - margin_px*2)
+        font_use, stroke, (tw, th) = choose_font_for_area(int(target_w*width_ratio), target_h)
 
-    return base_img
+        out = Image.new("RGB", (w, h + gap_px + text_area_h), WHITE)
+        out.paste(base_img, (0, 0))
+        draw = ImageDraw.Draw(out)
+        ox = margin_px + (target_w - tw)//2
+        oy = h + gap_px + margin_px + (target_h - th)//2
+        draw.text((ox, oy), text, fill=BLACK, font=font_use, stroke_width=stroke, stroke_fill=BLACK)
+        return out
 
 def make_secret_from_sample():
-    base = load_base_image(samples_rel_path="../samples/mijinko.png")
-    secret_img = draw_text_on_image(base, text="Happy hacking!", margin_ratio=0.06, width_ratio=0.82)
+    base = load_base_image(samples_rel_path="./mijinko.png")
+    secret_img = compose_image_with_text(
+        base_img=base,
+        text="Happy hacking!",
+        position="below"  # または 'right'
+    )
     return secret_img
 
+# --- VSS 暗号化 ---
 def vss_encrypt(img_rgb):
-    """(2,2) VSSS で2枚のシェアを生成（常にRGBで処理）"""
     w, h = img_rgb.size
     W, H = w*2, h*2
     shareA = Image.new("RGB", (W, H), WHITE)
@@ -129,7 +135,7 @@ def vss_encrypt(img_rgb):
 
     for y in range(h):
         for x in range(w):
-            v = is_black(src[x, y])  # True=黒(文字等), False=白
+            v = is_black(src[x, y])
             p = random.choice(PATTERNS)
             inv = [1 - t for t in p]
             blockA = p
@@ -139,8 +145,8 @@ def vss_encrypt(img_rgb):
 
     return shareA, shareB
 
+# --- シェア重ね合わせ ---
 def overlay(shareA, shareB):
-    """2枚のシェアを論理的に重ね合わせ（黒優先OR）"""
     assert shareA.size == shareB.size
     w, h = shareA.size
     out = Image.new("RGB", (w, h), WHITE)
@@ -150,21 +156,18 @@ def overlay(shareA, shareB):
             O[x, y] = BLACK if (is_black(A[x, y]) or is_black(B[x, y])) else WHITE
     return out
 
+# --- メイン処理 ---
 if __name__ == "__main__":
-    outdir = "./"  # Colab 上の examples/ フォルダ内に保存
-
-    # 1) base image にテキストを載せた secret を作る
+    outdir = "./"
     secret = make_secret_from_sample()
     secret.save(os.path.join(outdir, "secret.png"))
     print("Saved secret.png")
 
-    # 2) VSSS 暗号化
     shareA, shareB = vss_encrypt(secret)
     shareA.save(os.path.join(outdir, "shareA.png"))
     shareB.save(os.path.join(outdir, "shareB.png"))
     print("Saved shareA.png, shareB.png")
 
-    # 3) 重ね合わせ（復号）を生成
     ov = overlay(shareA, shareB)
     ov.save(os.path.join(outdir, "overlay.png"))
     print("Saved overlay.png")
