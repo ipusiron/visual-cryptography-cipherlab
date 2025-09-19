@@ -78,7 +78,7 @@ function renderShares(bin,w,h){
 
 btnGen?.addEventListener('click',async()=>{
   const file=encInput?.files?.[0];
-  if(!file) return alert('Upload an image first.');
+  if(!file) return alert('まず画像をアップロードしてください。');
   const img=await loadImage(file);
   const {w,h,bin}=toBinarized(img,+threshEl.value||128);
   renderShares(bin,w,h);
@@ -115,7 +115,7 @@ function loadAsCanvas(file){
 
 btnOverlay?.addEventListener('click',async()=>{
   const fA=decA?.files?.[0],fB=decB?.files?.[0];
-  if(!fA||!fB) return alert('Load both shares.');
+  if(!fA||!fB) return alert('両方のシェアを読み込んでください。');
   const [cA,cB]=await Promise.all([loadAsCanvas(fA),loadAsCanvas(fB)]);
   const W=Math.max(cA.width,cB.width),H=Math.max(cA.height,cB.height);
   overlay.width=W;overlay.height=H;
@@ -125,4 +125,29 @@ btnOverlay?.addEventListener('click',async()=>{
   ctx.globalCompositeOperation='darken';
   ctx.drawImage(cB,(+offx.value||0),(+offy.value||0));
   ctx.globalCompositeOperation='source-over';
+});
+
+// --- Accordion functionality ---
+document.querySelectorAll('.accordion-header').forEach(header => {
+  header.addEventListener('click', () => {
+    const content = header.nextElementSibling;
+    const isActive = header.classList.contains('active');
+
+    // Close all other accordions
+    document.querySelectorAll('.accordion-header').forEach(otherHeader => {
+      if (otherHeader !== header) {
+        otherHeader.classList.remove('active');
+        otherHeader.nextElementSibling.classList.remove('active');
+      }
+    });
+
+    // Toggle current accordion
+    if (isActive) {
+      header.classList.remove('active');
+      content.classList.remove('active');
+    } else {
+      header.classList.add('active');
+      content.classList.add('active');
+    }
+  });
 });

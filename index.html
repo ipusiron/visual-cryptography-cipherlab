@@ -9,48 +9,74 @@
 <body>
   <header class="app-header">
     <h1>VisualCryptography CipherLab</h1>
+    <p class="subtitle">視覚暗号の仕組みを2枚のシェアで学べる体験ツールです</p>
     <nav class="tabs">
-      <button data-tab="basics" class="active">Basics</button>
-      <button data-tab="encrypt">Encrypt</button>
-      <button data-tab="decode">Decode</button>
-      <button data-tab="theory">Theory</button>
+      <button data-tab="basics" class="active">基礎知識</button>
+      <button data-tab="encrypt">暗号化</button>
+      <button data-tab="decode">復号</button>
+      <button data-tab="theory">理論</button>
     </nav>
   </header>
 
   <main>
     <!-- Basics -->
     <section id="basics" class="tab active">
-      <h2>Basics</h2>
+      <h2>基礎知識</h2>
       <p>
-        Visual Cryptography (VSS/VSSS): split an image into two noise-like shares.
-        Any single share reveals nothing; overlaying both reveals the secret.
+        <strong>視覚暗号（Visual Cryptography）</strong>は、画像を2枚のノイズのようなシェアに分割する技術です。
+        単独のシェアからは何も読み取れませんが、2枚を重ね合わせると秘密の画像が浮かび上がります。
       </p>
       <ul>
-        <li>Purely visual decryption—no computation.</li>
-        <li>Pixel expansion (e.g., 2×2) makes shares larger than the plaintext image.</li>
-        <li>Great for demos, education, and paper-based verification.</li>
+        <li>純粋に視覚的な復号 — 計算処理は不要です</li>
+        <li>ピクセル拡張（例：2×2）により、シェアは元画像より大きくなります</li>
+        <li>デモ、教育、紙ベースの認証に最適です</li>
       </ul>
     </section>
 
     <!-- Encrypt -->
     <section id="encrypt" class="tab">
-      <h2>Encrypt (Generate Shares)</h2>
+      <h2>暗号化（シェア生成）</h2>
+      <p>画像を2枚のランダムなシェアに分割します。</p>
       <div class="panel">
+        <div class="file-label-with-help">
+          <span>画像ファイルを選択</span>
+          <span class="help-icon">？
+            <span class="tooltip">暗号化したい画像を選択してください</span>
+          </span>
+        </div>
         <input type="file" id="enc-input" accept="image/*" />
         <div class="controls">
-          <label>Threshold <input type="range" id="thresh" min="0" max="255" value="128" /></label>
-          <button id="btn-generate">Generate 2 Shares</button>
+          <label class="label-with-help">
+            しきい値
+            <span class="help-icon">？
+              <span class="tooltip">白黒変換の境界値（0-255）</span>
+            </span>
+            <input type="range" id="thresh" min="0" max="255" value="128" />
+          </label>
+          <button id="btn-generate">2枚のシェアを生成
+            <span class="help-icon">？
+              <span class="tooltip">画像を2枚の秘密分散画像に変換</span>
+            </span>
+          </button>
         </div>
         <div class="canvas-row">
           <div>
-            <h3>Share A</h3>
+            <h3>シェア A
+              <span class="help-icon">？
+                <span class="tooltip">1枚目の分散画像（単独では無意味）</span>
+              </span>
+            </h3>
             <canvas id="shareA"></canvas>
-            <button data-dl="shareA">Download A</button>
+            <button data-dl="shareA">シェアAをダウンロード</button>
           </div>
           <div>
-            <h3>Share B</h3>
+            <h3>シェア B
+              <span class="help-icon">？
+                <span class="tooltip">2枚目の分散画像（単独では無意味）</span>
+              </span>
+            </h3>
             <canvas id="shareB"></canvas>
-            <button data-dl="shareB">Download B</button>
+            <button data-dl="shareB">シェアBをダウンロード</button>
           </div>
         </div>
       </div>
@@ -58,16 +84,49 @@
 
     <!-- Decode -->
     <section id="decode" class="tab">
-      <h2>Decode (Overlay)</h2>
+      <h2>復号（重ね合わせ）</h2>
+      <p>2枚のシェアを重ねて秘密を復元します。</p>
       <div class="panel">
         <div class="file-grid">
-          <label>Share A <input type="file" id="dec-a" accept="image/*" /></label>
-          <label>Share B <input type="file" id="dec-b" accept="image/*" /></label>
+          <label>
+            <div class="file-label-with-help">
+              <span>シェア A</span>
+              <span class="help-icon">？
+                <span class="tooltip">1枚目の分散画像ファイル</span>
+              </span>
+            </div>
+            <input type="file" id="dec-a" accept="image/*" />
+          </label>
+          <label>
+            <div class="file-label-with-help">
+              <span>シェア B</span>
+              <span class="help-icon">？
+                <span class="tooltip">2枚目の分散画像ファイル</span>
+              </span>
+            </div>
+            <input type="file" id="dec-b" accept="image/*" />
+          </label>
         </div>
         <div class="controls">
-          <label>Offset X <input type="number" id="offx" value="0" step="1" /></label>
-          <label>Offset Y <input type="number" id="offy" value="0" step="1" /></label>
-          <button id="btn-overlay">Overlay</button>
+          <label class="label-with-help">
+            横方向オフセット
+            <span class="help-icon">？
+              <span class="tooltip">位置調整用の横方向のずれ量</span>
+            </span>
+            <input type="number" id="offx" value="0" step="1" />
+          </label>
+          <label class="label-with-help">
+            縦方向オフセット
+            <span class="help-icon">？
+              <span class="tooltip">位置調整用の縦方向のずれ量</span>
+            </span>
+            <input type="number" id="offy" value="0" step="1" />
+          </label>
+          <button id="btn-overlay">重ね合わせる
+            <span class="help-icon">？
+              <span class="tooltip">2枚を重ねて秘密画像を表示</span>
+            </span>
+          </button>
         </div>
         <canvas id="overlay"></canvas>
       </div>
@@ -75,12 +134,129 @@
 
     <!-- Theory -->
     <section id="theory" class="tab">
-      <h2>Theory (Study)</h2>
-      <ul>
-        <li>Greyscale / Color variants (bit-planes, EVCS).</li>
-        <li>(3,3) → (k,n) threshold generalization.</li>
-        <li>VSSS-specific applications: offline auth, anti-counterfeiting, education.</li>
-      </ul>
+      <h2>理論（研究）</h2>
+
+      <div class="accordion">
+        <button class="accordion-header">
+          <span>視覚暗号の基本原理</span>
+          <span class="accordion-icon">▼</span>
+        </button>
+        <div class="accordion-content">
+          <div class="accordion-body">
+            <p><strong>視覚暗号（Visual Cryptography）</strong>は、1994年に <strong>Moni Naor</strong> と <strong>Adi Shamir</strong> によって提案された暗号方式です。</p>
+            <p>通常の暗号は「暗号文＋鍵→復号アルゴリズム→平文」という流れを取りますが、視覚暗号では <strong>復号に計算処理を必要とせず、人間の目そのものが復号器</strong> となります。</p>
+
+            <div class="principle-example">
+              <h5>基本的な仕組み</h5>
+              <p><strong>黒いピクセル</strong>の場合：</p>
+              <div class="pixel-demo">
+                シートA: ■□<br>
+                シートB: □■<br>
+                重ね合わせ: ■■ → 黒く見える
+              </div>
+
+              <p><strong>白いピクセル</strong>の場合：</p>
+              <div class="pixel-demo">
+                シートA: ■□<br>
+                シートB: ■□<br>
+                重ね合わせ: ■□ → 灰色に見える
+              </div>
+            </div>
+
+            <p>👉 この「黒＝濃く見える」「白＝灰色に見える」という単純な仕組みが、視覚暗号の基本原理です。</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="accordion">
+        <button class="accordion-header">
+          <span>視覚暗号の特徴</span>
+          <span class="accordion-icon">▼</span>
+        </button>
+        <div class="accordion-content">
+          <div class="accordion-body">
+            <ul>
+              <li><strong>人間の目で復号</strong><br>PCやアルゴリズム不要。シェアを重ねるだけで秘密が復元できる。</li>
+              <li><strong>単独シェアは情報を持たない</strong><br>完全にランダムに見えるため、安全性が高い。</li>
+              <li><strong>ピクセル拡張</strong><br>秘密画像の1ピクセルを複数のサブピクセルに置き換えるため、シェアが大きくなる。</li>
+              <li><strong>白黒画像向け</strong><br>基本は2値画像。グレースケールやカラー対応は拡張手法が必要。</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="accordion">
+        <button class="accordion-header">
+          <span>VSSS（視覚復号型秘密分散法）への発展</span>
+          <span class="accordion-icon">▼</span>
+        </button>
+        <div class="accordion-content">
+          <div class="accordion-body">
+            <p><strong>VSSS</strong> = <strong>V</strong>isual <strong>S</strong>ecret <strong>S</strong>haring <strong>S</strong>cheme（視覚復号型秘密分散法）</p>
+
+            <h4>(2,2) スキーム → (k,n) スキーム</h4>
+            <p>2枚で復元する方式から、n枚のうちk枚以上で復元できる方式へ一般化。</p>
+
+            <h4>秘密分散共有との融合</h4>
+            <p>暗号理論の秘密分散法と同様、複数人がシェアを持ち寄らないと復元できない。</p>
+
+            <h4>拡張スキーム</h4>
+            <ul>
+              <li>グレースケール・カラー対応（ビットプレーン分解、EVCS）</li>
+              <li>効率的な非拡張型スキーム</li>
+              <li>誤り訂正機能付きスキーム</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="accordion">
+        <button class="accordion-header">
+          <span>VSSS の実用的応用例</span>
+          <span class="accordion-icon">▼</span>
+        </button>
+        <div class="accordion-content">
+          <div class="accordion-body">
+            <h4>認証・アクセス制御</h4>
+            <p>2要素認証や入場確認に利用可能。シェアを重ねると認証マークが現れる。</p>
+
+            <h4>偽造防止・透かし</h4>
+            <p>チケット、商品ラベル、証明書に仕込み、真偽判定に活用。</p>
+
+            <h4>セキュア情報配布</h4>
+            <p>新聞・雑誌に片方のシェアを印刷、会員カードを重ねると秘密が見える。</p>
+
+            <h4>QRコードとの融合</h4>
+            <p>複数シェアを重ねると有効なQRコードが読める仕組み。BEC防止やユーザ認証に応用。</p>
+
+            <h4>教育用途</h4>
+            <p>「複数人で秘密を守る」仕組みを直感的に体験でき、暗号教育に適する。</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="accordion">
+        <button class="accordion-header">
+          <span>このツールについて</span>
+          <span class="accordion-icon">▼</span>
+        </button>
+        <div class="accordion-content">
+          <div class="accordion-body">
+            <p>本ツールは、「生成AIで作るセキュリティツール100」プロジェクトの一環として開発されました。</p>
+            <p>このプロジェクトでは、AIの支援を活用しながら、セキュリティに関連するさまざまなツールを100日間にわたり制作・公開していく取り組みを行っています。</p>
+
+            <h4>本ツールの構成</h4>
+            <ul>
+              <li><strong>基礎知識</strong> — 視覚暗号の基本概念と特徴を解説</li>
+              <li><strong>暗号化</strong> — アップロードした画像を2枚のシェアに分離</li>
+              <li><strong>復号</strong> — 2枚のシェアを重ね合わせ、目視で秘密を確認</li>
+              <li><strong>理論</strong> — グレースケールやカラー拡張、(k,n) スキーム、応用例を紹介</li>
+            </ul>
+
+            <p>プロジェクトの詳細については、<a href="https://akademeia.info/?page_id=42163" target="_blank">こちらのページ</a>をご覧ください。</p>
+          </div>
+        </div>
+      </div>
     </section>
   </main>
 
