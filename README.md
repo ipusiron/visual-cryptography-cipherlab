@@ -1,12 +1,34 @@
-
 <!--
 ---
-title: VisualCryptography CipherLab
-category: cryptography
-difficulty: 1
-description: A hands-on web tool to learn Visual Cryptography (VSS/VSSS) through simple 2-sheet share generation and overlay decoding.
-tags: [visual-cryptography, vsss, secret-sharing, education, demo]
-demo: https://ipusiron.github.io/visual-cryptography-cipherlab/
+id: day070
+slug: visual-cryptography-cipherlab
+
+title: "VisualCryptography CipherLab"
+
+subtitle_ja: "視覚暗号の仕組みを2枚のシェアで学べる体験ツール"
+subtitle_en: "A hands-on web tool to learn Visual Cryptography with 2-sheet overlays"
+
+description_ja: "画像を2枚のノイズ状シェアに分割し、重ね合わせると秘密が浮かび上がる視覚暗号（VSSS）を体験できる教育用Webツール"
+description_en: "An educational web tool to experience Visual Secret Sharing Scheme (VSSS), splitting images into two noise-like shares that reveal secrets when overlaid"
+
+category_ja:
+  - 視覚暗号
+category_en:
+  - Visual Cryptography
+
+difficulty: 3
+
+tags:
+  - visual-cryptography
+  - vsss
+  - secret-sharing
+  - education
+  - canvas-api
+
+repo_url: "https://github.com/ipusiron/visual-cryptography-cipherlab"
+demo_url: "https://ipusiron.github.io/visual-cryptography-cipherlab/"
+
+hub: true
 ---
 -->
 
