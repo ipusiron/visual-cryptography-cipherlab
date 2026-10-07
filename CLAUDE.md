@@ -11,14 +11,15 @@ VisualCryptography CipherLab is a web-based educational tool for demonstrating V
 ### Core Implementation
 - **Frontend-only application** using vanilla JavaScript, HTML5 Canvas API, and CSS
 - **No build system or dependencies** - runs directly in browser as static files
-- **2×2 pixel expansion** visual cryptography algorithm implemented in `script.js`
+- **2×2 pixel expansion** visual cryptography algorithm. The logic lives in `js/vc-core.js` (DOM-free, on `globalThis.VCCore`); `script.js` only does the UI and canvas drawing
 - **Pattern-based encoding** using 6 predefined subpixel patterns for share generation
 
 ### Key Files
 - `index.html`: Single-page application with 4 tabs (基礎知識/Basics, 暗号化/Encrypt, 復号/Decode, 理論/Theory)
-- `script.js`: Core VSS implementation including:
+- `js/vc-core.js` (`VCCore`): pure logic — binarize, the 6 patterns, invert, `sharesForPixel`, `overlayBlock`, and `randomIndex`/`pickPattern` (unbiased selection via rejection sampling; the random source is injected, so tests are deterministic)
+- `script.js`: UI only, using `VCCore`:
   - Image binarization using luminance formula (0.299R + 0.587G + 0.114B)
-  - Share generation using random pattern selection from 6 patterns
+  - Share generation picking patterns with `crypto.getRandomValues` (never `Math.random` — a predictable PRNG would let one share plus the sequence recover the secret)
   - Canvas-based overlay with offset adjustment using 'darken' composite mode
   - Accordion UI for theory tab
 - `style.css`: Styling with CSS variables
@@ -52,10 +53,13 @@ The visual cryptography implementation uses:
 - **White pixels**: Both shares get the same pattern → overlay shows 50% gray (half black, half white)
 - **Overlay operation**: JavaScript uses Canvas 'darken' composite; Python uses logical OR
 
-## Testing Approach
+## Testing
 
-No automated tests. Manual testing:
-1. Upload test images via 暗号化 (Encrypt) tab
-2. Download generated shares
-3. Load shares in 復号 (Decode) tab to verify reconstruction
+```bash
+node --test
+```
+
+- Node 22+, no dependencies (`node:test`). Runs in GitHub Actions on push and pull request. `test/load.js` loads the plain scripts with `vm.runInThisContext`
+- `test/core.test.js` pins the 6 patterns, binarization (including threshold 0), share/overlay math (white→2 black, black→4 black), and the unbiased random selection. The random source is injected, so expected values are deterministic
+- Manual check for the UI: generate shares in the Encrypt tab, download them, load them in the Decode tab and confirm the secret appears when overlaid
 4. Adjust offset parameters to test alignment

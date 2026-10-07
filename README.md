@@ -78,13 +78,13 @@ A hands-on web tool to learn **Visual Cryptography (VSS/VSSS)** with simple 2-sh
 
 - **直感的なUI**
   - ライトモード対応の見やすいデザイン
-  - ヘルプアイコン（？）でホバー時に詳細説明を表示
-  - レスポンシブ対応で様々なデバイスで利用可能
+  - ヘルプアイコン（？）にマウス・タップ・キーボードで詳細説明を表示
+  - レスポンシブ対応でさまざまなデバイスで利用可能
 
 - **画像処理機能**
   - 画像ファイルのドラッグ&ドロップ対応
   - しきい値調整による白黒変換の最適化
-  - 2×2ピクセル拡張による高品質なシェア生成
+  - 2×2ピクセル拡張によるシェア生成（パターンは crypto.getRandomValues で選択）
   - 生成されたシェアの個別ダウンロード機能
 
 - **復号機能**
@@ -117,9 +117,9 @@ A hands-on web tool to learn **Visual Cryptography (VSS/VSSS)** with simple 2-sh
 
 | 元画像 | シェアA | シェアB | 重ね合わせ（復号結果） |
 |--------|--------|--------|-------------------------|
-| ![Secret](/examples/secret.png) | ![ShareA](/examples/shareA.png) | ![ShareB](/examples/shareB.png) | ![Overlay](/examples/overlay.png) |
+| ![Secret](examples/secret.png) | ![ShareA](examples/shareA.png) | ![ShareB](examples/shareB.png) | ![Overlay](examples/overlay.png) |
 
-これらの画像の作成には、[generate_vss_sample.py](/examples/generate_vss_sample.py)を用いました。
+これらの画像の作成には、[generate_vss_sample.py](examples/generate_vss_sample.py)を用いました。
 
 - **secret.png** - 元の秘密画像
 - **shareA.png** - シェアA（ランダムなドットパターン）
@@ -128,7 +128,7 @@ A hands-on web tool to learn **Visual Cryptography (VSS/VSSS)** with simple 2-sh
 
 ### サンプル画像の生成結果を見る
 
-Google Colabで"generate_vss_sample.py"ファイルを実行した手順は、以下のとおりです。
+Google Colabで"generate_vss_sample.ipynb"ファイルを実行した手順は、以下のとおりです。
 
 1. 以下の「Open in Colab」ボタンをクリック。
 
@@ -178,7 +178,7 @@ Google Colabで"generate_vss_sample.py"ファイルを実行した手順は、�
 - **人間の目で復号**  
   PCやアルゴリズム不要。シェアを重ねるだけで秘密が復元できる。
 - **単独シェアは情報を持たない**  
-  完全にランダムに見えるため、安全性が高い。
+  予測不能な乱数（crypto.getRandomValues）でパターンを選ぶため、単独のシェアからは元が白か黒かわからない（予測できる乱数だと片方のシェアから復元できてしまう）。
 - **ピクセル拡張**  
   秘密画像の1ピクセルを複数のサブピクセルに置き換えるため、シェアが大きくなる。
 - **白黒画像向け**  
@@ -189,7 +189,7 @@ Google Colabで"generate_vss_sample.py"ファイルを実行した手順は、�
 ## 🗺️ 使い方の例：地図画像での活用
 
 このツールは「マークの位置を隠す／共有する」といった応用もできます。
-たとえば、宝の地図から2枚のシェアに生成し、その2枚を重ね合わせると宝の位置が判明します。
+たとえば、宝の地図から2枚のシェアを生成し、その2枚を重ね合わせると宝の位置が判明します。
 
 ここでは `examples/map.png` （相馬市の位置にマークを付けた地図画像）を使って、視覚暗号のシェア画像を生成・復元することで、指定の位置を確認してみましょう。
 
@@ -223,9 +223,20 @@ Google Colabで"generate_vss_sample.py"ファイルを実行した手順は、�
 - **セキュア情報配布**  
   新聞・雑誌に片方のシェアを印刷、会員カードを重ねると秘密が見える。  
 - **QRコードとの融合**  
-  複数シェアを重ねると有効なQRコードが読める仕組み。BEC防止やユーザ認証に応用。  
+  複数シェアを重ねると有効なQRコードが読める仕組み。BEC防止やユーザー認証に応用。  
 - **教育用途**  
   「複数人で秘密を守る」仕組みを直感的に体験でき、暗号教育に適する。  
+
+---
+
+## 🧪 テスト
+
+```bash
+npm test
+```
+
+- Node.js 22以上、依存なし（`node:test`）。GitHub Actionsでpushとプルリクエストのたびに実行します。
+- 計算部（`js/vc-core.js`）の2値化・6パターン・シェア生成・重ね合わせ・偏りのない乱数選択を検証します。乱数源は注入できるので、テストは決定的です。
 
 ---
 
@@ -235,7 +246,14 @@ Google Colabで"generate_vss_sample.py"ファイルを実行した手順は、�
 visual-cryptography-cipherlab/
 ├── index.html              # メインのWebアプリケーション
 ├── style.css              # ライトモード対応のスタイル定義
-├── script.js               # VSS暗号化・復号の実装
+├── script.js               # 画面の処理（UI・生成・重ね合わせ）
+├── js/
+│   └── vc-core.js          # 計算部（2値化・パターン・シェア生成・重ね合わせ。DOMなし）
+├── test/
+│   ├── load.js             # js/ のスクリプトをテストに読み込む
+│   └── core.test.js        # 2値化・パターン・シェア・重ね合わせ・偏りなしの乱数
+├── .github/workflows/test.yml # push・pull_request で node --test
+├── package.json            # npm test の設定（依存なし）
 ├── CLAUDE.md               # Claude Code用の開発ガイド
 ├── LICENSE                 # MITライセンス
 ├── README.md               # プロジェクト説明（このファイル）
