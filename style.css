@@ -269,9 +269,7 @@ section p {
   width: max-content;
   max-width: min(300px, 80vw);
   text-align: center;
-  opacity: 0;
-  visibility: hidden;
-  transition: all 0.3s ease;
+  display: none;
   z-index: 1000;
   box-shadow: 0 4px 12px rgba(0,0,0,0.2);
   pointer-events: none;
@@ -293,9 +291,7 @@ section p {
 .help-icon:hover .tooltip,
 .help-icon:focus .tooltip,
 .help-icon:focus-within .tooltip {
-  opacity: 1;
-  visibility: visible;
-  bottom: calc(100% + 12px);
+  display: block;
 }
 
 .help-icon:focus-visible {
