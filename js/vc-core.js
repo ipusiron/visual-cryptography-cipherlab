@@ -53,5 +53,45 @@
     return (count) => c.getRandomValues(new Uint8Array(count));
   }
 
-  root.VCCore = { PATTERNS, invert, binarize, randomIndex, pickPattern, sharesForPixel, overlayBlock, cryptoBytes };
+  // ---- 乱数の弱さのデモ（第2弾） ----
+  // 予測可能な擬似乱数（線形合同法 LCG）。シードから同じ列を再現できる＝攻撃者も再現できる。
+  // bytesFn（count→Uint8Array）の形で返す。パラメータは glibc の rand と同じ系列
+  function lcgBytes(seed) {
+    let state = (seed >>> 0) || 1;
+    return (count) => {
+      const out = new Uint8Array(count);
+      for (let i = 0; i < count; i++) {
+        state = (Math.imul(state, 1103515245) + 12345) >>> 0;
+        out[i] = (state >>> 16) & 0xff; // 上位側のビットを使う（下位は周期が短い）
+      }
+      return out;
+    };
+  }
+
+  // count ピクセル分のパターン番号の列を、与えた乱数源から作る（生成と攻撃で同じ列を得るため）
+  function patternIndices(count, bytesFn) {
+    const out = new Uint8Array(count);
+    for (let i = 0; i < count; i++) out[i] = randomIndex(PATTERNS.length, bytesFn);
+    return out;
+  }
+
+  // 攻撃: シェアB のブロック列と、再現したパターン番号の列から、秘密（0=白,1=黒）を復元する。
+  // シェアB は白なら PATTERNS[idx]、黒なら invert(PATTERNS[idx])。どちらとも違えば null（復元失敗）
+  function recoverFromShareB(shareBBlocks, indices) {
+    const n = indices.length;
+    const bin = new Uint8Array(n);
+    for (let i = 0; i < n; i++) {
+      const p = PATTERNS[indices[i]];
+      const blk = shareBBlocks[i];
+      if (p.every((x, k) => x === blk[k])) bin[i] = 0;
+      else if (invert(p).every((x, k) => x === blk[k])) bin[i] = 1;
+      else return null;
+    }
+    return bin;
+  }
+
+  root.VCCore = {
+    PATTERNS, invert, binarize, randomIndex, pickPattern, sharesForPixel, overlayBlock, cryptoBytes,
+    lcgBytes, patternIndices, recoverFromShareB,
+  };
 })(typeof globalThis !== 'undefined' ? globalThis : this);

@@ -88,6 +88,28 @@ test('pickPattern は注入した乱数でパターンを選ぶ。cryptoBytes �
   assert.equal(asked, 1);
 });
 
+test('乱数の弱さのデモ: 予測可能な乱数（LCG）だと、シェアBと乱数列から秘密を復元できる', () => {
+  // 秘密（白黒）を適当に用意
+  const secret = [0, 1, 1, 0, 1, 0, 0, 1];
+  const seed = 12345;
+  // 生成側: LCG でパターン番号を決め、シェアB のブロックを作る
+  const idx = C.patternIndices(secret.length, C.lcgBytes(seed));
+  const shareB = secret.map((v, i) => C.sharesForPixel(v, C.PATTERNS[idx[i]]).b);
+  // 同じシードなら同じ列を再現できる（攻撃者も再現できる）
+  assert.deepEqual([...C.patternIndices(secret.length, C.lcgBytes(seed))], [...idx]);
+  // 攻撃: シェアB ＋ 再現した列 → 秘密を復元
+  const recovered = C.recoverFromShareB(shareB, C.patternIndices(secret.length, C.lcgBytes(seed)));
+  assert.deepEqual([...recovered], secret, '正しいシードなら秘密が丸ごと復元できる');
+  // 別のシード（＝別の列）だと、ブロックがどちらとも一致せず復元に失敗する（null）か、間違う
+  const wrong = C.recoverFromShareB(shareB, C.patternIndices(secret.length, C.lcgBytes(999)));
+  assert.ok(wrong === null || [...wrong].join('') !== secret.join(''), '間違ったシードでは正しく復元できない');
+});
+
+test('LCG は決定的（同じシードで同じ列）だが、シードが違えば列が違う', () => {
+  assert.deepEqual([...C.lcgBytes(1)(16)], [...C.lcgBytes(1)(16)]);
+  assert.notDeepEqual([...C.lcgBytes(1)(16)], [...C.lcgBytes(2)(16)]);
+});
+
 test('vc-core.js に innerHTML などの危険な書き込みがない', () => {
   const src = read('js/vc-core.js');
   assert.doesNotMatch(src, /innerHTML|outerHTML|document\.write|eval\(|new Function|Math\.random/);
