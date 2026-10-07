@@ -129,6 +129,82 @@ btnOverlay?.addEventListener('click',async()=>{
   }
 });
 
+// --- RNG trap demo: 予測できる乱数だと片方のシェアから秘密が復元できる ---
+(function(){
+  const seedEl=document.getElementById('rng-seed');
+  const btnGen=document.getElementById('btn-rng-gen');
+  const btnAtk=document.getElementById('btn-rng-attack');
+  const cvSecret=document.getElementById('rng-secret');
+  const cvShareB=document.getElementById('rng-shareB');
+  const cvRec=document.getElementById('rng-recovered');
+  const msg=document.getElementById('rng-msg');
+  if(!btnGen) return;
+  let state=null; // {w,h,bin,shareB(blocks)}
+
+  // 秘密画像を作る（「秘密」の文字を描く）。返り値は2値（1=黒）
+  function makeSecret(){
+    const w=140,h=60;
+    const c=document.createElement('canvas'); c.width=w;c.height=h;
+    const ctx=c.getContext('2d');
+    ctx.fillStyle='#fff'; ctx.fillRect(0,0,w,h);
+    ctx.fillStyle='#000'; ctx.font='bold 40px sans-serif'; ctx.textBaseline='middle'; ctx.textAlign='center';
+    ctx.fillText('秘密',w/2,h/2+2);
+    const im=ctx.getImageData(0,0,w,h);
+    return {w,h,bin:VC.binarize(im.data,w,h,128)};
+  }
+
+  // 2値を拡大して白黒で描く（1=黒）
+  function drawBin(cv,bin,w,h,scale){
+    cv.width=w*scale; cv.height=h*scale;
+    const ctx=cv.getContext('2d');
+    const im=ctx.createImageData(cv.width,cv.height);
+    for(let y=0;y<cv.height;y++) for(let x=0;x<cv.width;x++){
+      const v=bin[((y/scale)|0)*w+((x/scale)|0)]; const col=v?0:255; const idx=(y*cv.width+x)*4;
+      im.data[idx]=col;im.data[idx+1]=col;im.data[idx+2]=col;im.data[idx+3]=255;
+    }
+    ctx.putImageData(im,0,0);
+  }
+
+  // シェア（2×2ブロックの配列）をcanvasに描く
+  function drawBlocks(cv,blocks,w,h){
+    const W=w*2,H=h*2; cv.width=W;cv.height=H;
+    const ctx=cv.getContext('2d'); const im=ctx.createImageData(W,H);
+    for(let y=0;y<h;y++) for(let x=0;x<w;x++){
+      const b=blocks[y*w+x];
+      const put=(px,py,val)=>{const idx=(py*W+px)*4;const col=val?0:255;im.data[idx]=col;im.data[idx+1]=col;im.data[idx+2]=col;im.data[idx+3]=255;};
+      put(x*2,y*2,b[0]);put(x*2+1,y*2,b[1]);put(x*2,y*2+1,b[2]);put(x*2+1,y*2+1,b[3]);
+    }
+    ctx.putImageData(im,0,0);
+  }
+
+  btnGen.addEventListener('click',()=>{
+    const {w,h,bin}=makeSecret();
+    const seed=Number.isFinite(+seedEl.value)?(+seedEl.value|0):12345;
+    const idx=VC.patternIndices(w*h,VC.lcgBytes(seed));
+    const shareB=[]; for(let i=0;i<w*h;i++) shareB.push(VC.sharesForPixel(bin[i],VC.PATTERNS[idx[i]]).b);
+    state={w,h,bin,shareB};
+    drawBin(cvSecret,bin,w,h,2);
+    drawBlocks(cvShareB,shareB,w,h);
+    cvRec.width=cvShareB.width;cvRec.height=cvShareB.height;cvRec.getContext('2d').clearRect(0,0,cvRec.width,cvRec.height);
+    msg.textContent='弱い乱数（シード固定の擬似乱数）でシェアBを作りました。単独ではノイズに見えます。「復元（攻撃）」を押してください。';
+  });
+
+  btnAtk.addEventListener('click',()=>{
+    if(!state) return alert('先に「弱い乱数でシェアを作る」を押してください。');
+    const {w,h,shareB,bin}=state;
+    const seed=Number.isFinite(+seedEl.value)?(+seedEl.value|0):12345;
+    // 攻撃者はシードから乱数列を再現し、シェアBと照合して秘密を復元する
+    const idx=VC.patternIndices(w*h,VC.lcgBytes(seed));
+    const recovered=VC.recoverFromShareB(shareB,idx);
+    if(!recovered){ msg.textContent='このシードでは復元できませんでした（生成時と違うシードです）。生成に使ったシードを入れてください。'; return; }
+    drawBin(cvRec,recovered,w,h,2);
+    const match=recovered.every((v,i)=>v===bin[i]);
+    msg.textContent=match
+      ? '復元成功。シェアB1枚とシードだけで、秘密が丸ごと復元できました。予測できる乱数は危険です。'
+      : '一部だけ復元できました（シードがずれています）。';
+  });
+})();
+
 // --- Accordion functionality ---
 document.querySelectorAll('.accordion-header').forEach(header => {
   header.addEventListener('click', () => {

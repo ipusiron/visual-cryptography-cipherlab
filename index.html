@@ -15,6 +15,7 @@
       <button type="button" data-tab="basics" class="active">基礎知識</button>
       <button type="button" data-tab="encrypt">暗号化</button>
       <button type="button" data-tab="decode">復号</button>
+      <button type="button" data-tab="rng">乱数のわな</button>
       <button type="button" data-tab="theory">理論</button>
     </nav>
   </header>
@@ -128,6 +129,41 @@
           </span>
         </div>
         <canvas id="overlay"></canvas>
+      </div>
+    </section>
+
+    <!-- RNG trap -->
+    <section id="rng" class="tab">
+      <h2>乱数のわな（予測できる乱数は危険）</h2>
+      <p>視覚暗号の「単独のシェアからは何もわからない」は、<strong>パターンを予測不能な乱数で選ぶこと</strong>が前提です。ここでは、わざと<strong>予測できる擬似乱数（線形合同法、シード固定）</strong>でシェアを作り、<strong>片方のシェア（B）とシードだけ</strong>から秘密が復元できてしまう様子を見せます。</p>
+      <div class="panel">
+        <div class="controls">
+          <label class="label-with-help">
+            シード
+            <span class="help-icon" tabindex="0">？
+              <span class="tooltip">擬似乱数の初期値。攻撃者がこれを知っていると乱数列を再現できる</span>
+            </span>
+            <input type="number" id="rng-seed" value="12345" step="1" />
+          </label>
+          <button type="button" id="btn-rng-gen">弱い乱数でシェアを作る</button>
+          <button type="button" id="btn-rng-attack">シェアB＋シードから復元（攻撃）</button>
+        </div>
+        <div class="canvas-row">
+          <div>
+            <h3>秘密画像</h3>
+            <canvas id="rng-secret"></canvas>
+          </div>
+          <div>
+            <h3>シェア B（単独ではノイズ）</h3>
+            <canvas id="rng-shareB"></canvas>
+          </div>
+          <div>
+            <h3>復元された秘密（攻撃の結果）</h3>
+            <canvas id="rng-recovered"></canvas>
+          </div>
+        </div>
+        <p id="rng-msg" class="rng-msg" aria-live="polite"></p>
+        <p class="note">このツールの「暗号化」タブは <code>crypto.getRandomValues</code>（予測不能）を使うので、攻撃者はシードを知りようがなく、この復元はできません。予測できる乱数（<code>Math.random</code> やシード固定の擬似乱数）を秘密分散に使ってはいけない、という教訓です。</p>
       </div>
     </section>
 
