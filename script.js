@@ -1,3 +1,20 @@
+// i18n: 言語を決めて静的な文言を当て、言語ボタンを配線する
+const M = window.VCMessages;
+const I18N = window.VCI18n;
+const t = (key, vars) => M.t(key, vars);
+let relabel = () => {};
+(function initLang(){
+  const lang = I18N.initialLanguage(location.search, I18N.readSaved(), navigator.languages);
+  I18N.use(lang, document);
+  const btn = document.getElementById('lang-btn');
+  if (btn) btn.addEventListener('click', () => {
+    const next = M.getLanguage() === 'ja' ? 'en' : 'ja';
+    I18N.use(next, document);
+    I18N.save(next);
+    relabel();
+  });
+})();
+
 // Tab switching
 document.querySelectorAll('.tabs button').forEach(btn => {
   btn.addEventListener('click', () => {
@@ -67,7 +84,7 @@ function renderShares(bin,w,h){
 
 btnGen?.addEventListener('click',async()=>{
   const file=encInput?.files?.[0];
-  if(!file) return alert('まず画像をアップロードしてください。');
+  if(!file) return alert(t('msg.needUpload'));
   try{
     const img=await loadImage(file);
     const thr=Number.isFinite(+threshEl.value)?+threshEl.value:128;
@@ -75,7 +92,7 @@ btnGen?.addEventListener('click',async()=>{
     renderShares(bin,w,h);
     setDownloadsEnabled(true);
   }catch(e){
-    alert('画像の読み込みに失敗しました。別の画像を試してください。');
+    alert(t('msg.loadFail'));
   }
 });
 
@@ -113,7 +130,7 @@ function loadAsCanvas(file){
 
 btnOverlay?.addEventListener('click',async()=>{
   const fA=decA?.files?.[0],fB=decB?.files?.[0];
-  if(!fA||!fB) return alert('両方のシェアを読み込んでください。');
+  if(!fA||!fB) return alert(t('msg.needBoth'));
   try{
     const [cA,cB]=await Promise.all([loadAsCanvas(fA),loadAsCanvas(fB)]);
     const W=Math.max(cA.width,cB.width),H=Math.max(cA.height,cB.height);
@@ -125,9 +142,86 @@ btnOverlay?.addEventListener('click',async()=>{
     ctx.drawImage(cB,(+offx.value||0),(+offy.value||0));
     ctx.globalCompositeOperation='source-over';
   }catch(e){
-    alert('シェアの読み込みに失敗しました。別の画像を試してください。');
+    alert(t('msg.overlayFail'));
   }
 });
+
+// --- RNG trap demo: 予測できる乱数だと片方のシェアから秘密が復元できる ---
+(function(){
+  const seedEl=document.getElementById('rng-seed');
+  const btnGen=document.getElementById('btn-rng-gen');
+  const btnAtk=document.getElementById('btn-rng-attack');
+  const cvSecret=document.getElementById('rng-secret');
+  const cvShareB=document.getElementById('rng-shareB');
+  const cvRec=document.getElementById('rng-recovered');
+  const msg=document.getElementById('rng-msg');
+  if(!btnGen) return;
+  let state=null; // {w,h,bin,shareB(blocks)}
+  let msgKey=null;
+  function setMsg(key){ msgKey=key; msg.textContent=key?t(key):''; }
+  relabel=()=>{ if(msgKey) msg.textContent=t(msgKey); };
+
+  // 秘密画像を作る（「秘密」の文字を描く）。返り値は2値（1=黒）
+  function makeSecret(){
+    const w=140,h=60;
+    const c=document.createElement('canvas'); c.width=w;c.height=h;
+    const ctx=c.getContext('2d');
+    ctx.fillStyle='#fff'; ctx.fillRect(0,0,w,h);
+    ctx.fillStyle='#000'; ctx.font='bold 40px sans-serif'; ctx.textBaseline='middle'; ctx.textAlign='center';
+    ctx.fillText('秘密',w/2,h/2+2);
+    const im=ctx.getImageData(0,0,w,h);
+    return {w,h,bin:VC.binarize(im.data,w,h,128)};
+  }
+
+  // 2値を拡大して白黒で描く（1=黒）
+  function drawBin(cv,bin,w,h,scale){
+    cv.width=w*scale; cv.height=h*scale;
+    const ctx=cv.getContext('2d');
+    const im=ctx.createImageData(cv.width,cv.height);
+    for(let y=0;y<cv.height;y++) for(let x=0;x<cv.width;x++){
+      const v=bin[((y/scale)|0)*w+((x/scale)|0)]; const col=v?0:255; const idx=(y*cv.width+x)*4;
+      im.data[idx]=col;im.data[idx+1]=col;im.data[idx+2]=col;im.data[idx+3]=255;
+    }
+    ctx.putImageData(im,0,0);
+  }
+
+  // シェア（2×2ブロックの配列）をcanvasに描く
+  function drawBlocks(cv,blocks,w,h){
+    const W=w*2,H=h*2; cv.width=W;cv.height=H;
+    const ctx=cv.getContext('2d'); const im=ctx.createImageData(W,H);
+    for(let y=0;y<h;y++) for(let x=0;x<w;x++){
+      const b=blocks[y*w+x];
+      const put=(px,py,val)=>{const idx=(py*W+px)*4;const col=val?0:255;im.data[idx]=col;im.data[idx+1]=col;im.data[idx+2]=col;im.data[idx+3]=255;};
+      put(x*2,y*2,b[0]);put(x*2+1,y*2,b[1]);put(x*2,y*2+1,b[2]);put(x*2+1,y*2+1,b[3]);
+    }
+    ctx.putImageData(im,0,0);
+  }
+
+  btnGen.addEventListener('click',()=>{
+    const {w,h,bin}=makeSecret();
+    const seed=Number.isFinite(+seedEl.value)?(+seedEl.value|0):12345;
+    const idx=VC.patternIndices(w*h,VC.lcgBytes(seed));
+    const shareB=[]; for(let i=0;i<w*h;i++) shareB.push(VC.sharesForPixel(bin[i],VC.PATTERNS[idx[i]]).b);
+    state={w,h,bin,shareB};
+    drawBin(cvSecret,bin,w,h,2);
+    drawBlocks(cvShareB,shareB,w,h);
+    cvRec.width=cvShareB.width;cvRec.height=cvShareB.height;cvRec.getContext('2d').clearRect(0,0,cvRec.width,cvRec.height);
+    setMsg('msg.rngGenerated');
+  });
+
+  btnAtk.addEventListener('click',()=>{
+    if(!state) return alert(t('msg.rngNeedGen'));
+    const {w,h,shareB,bin}=state;
+    const seed=Number.isFinite(+seedEl.value)?(+seedEl.value|0):12345;
+    // 攻撃者はシードから乱数列を再現し、シェアBと照合して秘密を復元する
+    const idx=VC.patternIndices(w*h,VC.lcgBytes(seed));
+    const recovered=VC.recoverFromShareB(shareB,idx);
+    if(!recovered){ setMsg('msg.rngWrongSeed'); return; }
+    drawBin(cvRec,recovered,w,h,2);
+    const match=recovered.every((v,i)=>v===bin[i]);
+    setMsg(match ? 'msg.rngRecovered' : 'msg.rngPartial');
+  });
+})();
 
 // --- Accordion functionality ---
 document.querySelectorAll('.accordion-header').forEach(header => {

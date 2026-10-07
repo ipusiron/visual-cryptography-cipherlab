@@ -9,74 +9,75 @@
 </head>
 <body>
   <header class="app-header">
+    <button id="lang-btn" class="lang-button" type="button" data-i18n="ui.langButton">EN</button>
     <h1>VisualCryptography CipherLab</h1>
-    <p class="subtitle">視覚暗号の仕組みを2枚のシェアで学べる体験ツールです</p>
+    <p class="subtitle" data-i18n="ui.subtitle">視覚暗号の仕組みを2枚のシェアで学べる体験ツールです</p>
     <nav class="tabs">
-      <button type="button" data-tab="basics" class="active">基礎知識</button>
-      <button type="button" data-tab="encrypt">暗号化</button>
-      <button type="button" data-tab="decode">復号</button>
-      <button type="button" data-tab="theory">理論</button>
+      <button type="button" data-tab="basics" class="active" data-i18n="ui.tabBasics">基礎知識</button>
+      <button type="button" data-tab="encrypt" data-i18n="ui.tabEncrypt">暗号化</button>
+      <button type="button" data-tab="decode" data-i18n="ui.tabDecode">復号</button>
+      <button type="button" data-tab="rng" data-i18n="ui.tabRng">乱数のわな</button>
+      <button type="button" data-tab="theory" data-i18n="ui.tabTheory">理論</button>
     </nav>
   </header>
 
   <main>
     <!-- Basics -->
     <section id="basics" class="tab active">
-      <h2>基礎知識</h2>
+      <h2 data-i18n="basics.h2">基礎知識</h2>
       <p>
-        <strong>視覚暗号（Visual Cryptography）</strong>は、画像を2枚のノイズのようなシェアに分割する技術です。
-        単独のシェアからは何も読み取れませんが、2枚を重ね合わせると秘密の画像が浮かび上がります。
+        <strong data-i18n="basics.p1a">視覚暗号（Visual Cryptography）</strong><span data-i18n="basics.p1b">は、画像を2枚のノイズのようなシェアに分割する技術です。単独のシェアからは何も読み取れませんが、2枚を重ね合わせると秘密の画像が浮かび上がります。</span>
       </p>
       <ul>
-        <li>純粋に視覚的な復号 — 計算処理は不要です</li>
-        <li>ピクセル拡張（例：2×2）により、シェアは元画像より大きくなります</li>
-        <li>デモ、教育、紙ベースの認証に最適です</li>
+        <li data-i18n="basics.l1">純粋に視覚的な復号 — 計算処理は不要です</li>
+        <li data-i18n="basics.l2">ピクセル拡張（例：2×2）により、シェアは元画像より大きくなります</li>
+        <li data-i18n="basics.l3">デモ、教育、紙ベースの認証に最適です</li>
       </ul>
     </section>
 
     <!-- Encrypt -->
     <section id="encrypt" class="tab">
-      <h2>暗号化（シェア生成）</h2>
-      <p>画像を2枚のランダムなシェアに分割します。</p>
+      <h2 data-i18n="enc.h2">暗号化（シェア生成）</h2>
+      <p data-i18n="enc.p">画像を2枚のランダムなシェアに分割します。</p>
       <div class="panel">
         <div class="file-label-with-help">
-          <span>画像ファイルを選択</span>
-          <span class="help-icon" tabindex="0">？
-            <span class="tooltip">暗号化したい画像を選択してください</span>
+          <span data-i18n="enc.fileLabel">画像ファイルを選択</span>
+          <span class="help-icon" tabindex="0"><span data-i18n="ui.helpMark">？</span>
+            <span class="tooltip" data-i18n="tip.encFile">暗号化したい画像を選択してください</span>
           </span>
         </div>
         <input type="file" id="enc-input" accept="image/*" />
         <div class="controls">
           <label class="label-with-help">
-            しきい値
-            <span class="help-icon" tabindex="0">？
-              <span class="tooltip">白黒変換の境界値（0-255）</span>
+            <span data-i18n="enc.threshLabel">しきい値</span>
+            <span class="help-icon" tabindex="0"><span data-i18n="ui.helpMark">？</span>
+              <span class="tooltip" data-i18n="tip.thresh">白黒変換の境界値（0-255）</span>
             </span>
             <input type="range" id="thresh" min="0" max="255" value="128" />
           </label>
-          <button type="button" id="btn-generate">2枚のシェアを生成</button>
-          <span class="help-icon" tabindex="0">？
-            <span class="tooltip">画像を2枚の秘密分散画像に変換</span>
+          <button id="btn-generate" type="button" data-i18n="enc.genBtn">2枚のシェアを生成</button>
+          <span class="help-icon" tabindex="0"><span data-i18n="ui.helpMark">？</span>
+            <span class="tooltip" data-i18n="tip.gen">画像を2枚の秘密分散画像に変換</span>
           </span>
         </div>
         <div class="canvas-row">
           <div>
-            <h3>シェア A
-              <span class="help-icon" tabindex="0">？
-                <span class="tooltip">1枚目の分散画像（単独では無意味）</span>
+            <h3><span data-i18n="enc.shareA">シェア A</span>
+              <span class="help-icon" tabindex="0"><span data-i18n="ui.helpMark">？</span>
+                <span class="tooltip" data-i18n="tip.shareA">1枚目の分散画像（単独では無意味）</span>
               </span>
             </h3>
             <canvas id="shareA"></canvas>
-            <button type="button" data-dl="shareA">シェアAをダウンロード</button>
+            <button data-dl="shareA" type="button" data-i18n="enc.dlA">シェアAをダウンロード</button>
           </div>
           <div>
-            <h3>シェア B
-              <span class="help-icon" tabindex="0">？
-                <span class="tooltip">2枚目の分散画像（単独では無意味）</span>
+            <h3><span data-i18n="enc.shareB">シェア B</span>
+              <span class="help-icon" tabindex="0"><span data-i18n="ui.helpMark">？</span>
+                <span class="tooltip" data-i18n="tip.shareB">2枚目の分散画像（単独では無意味）</span>
               </span>
             </h3>
             <canvas id="shareB"></canvas>
-            <button type="button" data-dl="shareB">シェアBをダウンロード</button>
+            <button data-dl="shareB" type="button" data-i18n="enc.dlB">シェアBをダウンロード</button>
           </div>
         </div>
       </div>
@@ -84,24 +85,24 @@
 
     <!-- Decode -->
     <section id="decode" class="tab">
-      <h2>復号（重ね合わせ）</h2>
-      <p>2枚のシェアを重ねて秘密を復元します。</p>
+      <h2 data-i18n="dec.h2">復号（重ね合わせ）</h2>
+      <p data-i18n="dec.p">2枚のシェアを重ねて秘密を復元します。</p>
       <div class="panel">
         <div class="file-grid">
           <label>
             <div class="file-label-with-help">
-              <span>シェア A</span>
-              <span class="help-icon" tabindex="0">？
-                <span class="tooltip">1枚目の分散画像ファイル</span>
+              <span data-i18n="dec.shareA">シェア A</span>
+              <span class="help-icon" tabindex="0"><span data-i18n="ui.helpMark">？</span>
+                <span class="tooltip" data-i18n="tip.decA">1枚目の分散画像ファイル</span>
               </span>
             </div>
             <input type="file" id="dec-a" accept="image/*" />
           </label>
           <label>
             <div class="file-label-with-help">
-              <span>シェア B</span>
-              <span class="help-icon" tabindex="0">？
-                <span class="tooltip">2枚目の分散画像ファイル</span>
+              <span data-i18n="dec.shareB">シェア B</span>
+              <span class="help-icon" tabindex="0"><span data-i18n="ui.helpMark">？</span>
+                <span class="tooltip" data-i18n="tip.decB">2枚目の分散画像ファイル</span>
               </span>
             </div>
             <input type="file" id="dec-b" accept="image/*" />
@@ -109,78 +110,113 @@
         </div>
         <div class="controls">
           <label class="label-with-help">
-            横方向オフセット
-            <span class="help-icon" tabindex="0">？
-              <span class="tooltip">位置調整用の横方向のずれ量</span>
+            <span data-i18n="dec.offx">横方向オフセット</span>
+            <span class="help-icon" tabindex="0"><span data-i18n="ui.helpMark">？</span>
+              <span class="tooltip" data-i18n="tip.offx">位置調整用の横方向のずれ量</span>
             </span>
             <input type="number" id="offx" value="0" step="1" />
           </label>
           <label class="label-with-help">
-            縦方向オフセット
-            <span class="help-icon" tabindex="0">？
-              <span class="tooltip">位置調整用の縦方向のずれ量</span>
+            <span data-i18n="dec.offy">縦方向オフセット</span>
+            <span class="help-icon" tabindex="0"><span data-i18n="ui.helpMark">？</span>
+              <span class="tooltip" data-i18n="tip.offy">位置調整用の縦方向のずれ量</span>
             </span>
             <input type="number" id="offy" value="0" step="1" />
           </label>
-          <button type="button" id="btn-overlay">重ね合わせる</button>
-          <span class="help-icon" tabindex="0">？
-            <span class="tooltip">2枚を重ねて秘密画像を表示</span>
+          <button id="btn-overlay" type="button" data-i18n="dec.overlayBtn">重ね合わせる</button>
+          <span class="help-icon" tabindex="0"><span data-i18n="ui.helpMark">？</span>
+            <span class="tooltip" data-i18n="tip.overlay">2枚を重ねて秘密画像を表示</span>
           </span>
         </div>
         <canvas id="overlay"></canvas>
       </div>
     </section>
 
+    <!-- RNG trap -->
+    <section id="rng" class="tab">
+      <h2 data-i18n="rng.h2">乱数のわな（予測できる乱数は危険）</h2>
+      <p><span data-i18n="rng.intro.p1">視覚暗号の「単独のシェアからは何もわからない」は、</span><strong data-i18n="rng.intro.s1">パターンを予測不能な乱数で選ぶこと</strong><span data-i18n="rng.intro.p2">が前提です。ここでは、わざと</span><strong data-i18n="rng.intro.s2">予測できる擬似乱数（線形合同法、シード固定）</strong><span data-i18n="rng.intro.p3">でシェアを作り、</span><strong data-i18n="rng.intro.s3">片方のシェア（B）とシードだけ</strong><span data-i18n="rng.intro.p4">から秘密が復元できてしまう様子を見せます。</span></p>
+      <div class="panel">
+        <div class="controls">
+          <label class="label-with-help">
+            <span data-i18n="rng.seedLabel">シード</span>
+            <span class="help-icon" tabindex="0"><span data-i18n="ui.helpMark">？</span>
+              <span class="tooltip" data-i18n="tip.seed">擬似乱数の初期値。攻撃者がこれを知っていると乱数列を再現できる</span>
+            </span>
+            <input type="number" id="rng-seed" value="12345" step="1" />
+          </label>
+          <button type="button" id="btn-rng-gen" data-i18n="rng.genBtn">弱い乱数でシェアを作る</button>
+          <button type="button" id="btn-rng-attack" data-i18n="rng.attackBtn">シェアB＋シードから復元（攻撃）</button>
+        </div>
+        <div class="canvas-row">
+          <div>
+            <h3 data-i18n="rng.secret">秘密画像</h3>
+            <canvas id="rng-secret"></canvas>
+          </div>
+          <div>
+            <h3 data-i18n="rng.shareB">シェア B（単独ではノイズ）</h3>
+            <canvas id="rng-shareB"></canvas>
+          </div>
+          <div>
+            <h3 data-i18n="rng.recovered">復元された秘密（攻撃の結果）</h3>
+            <canvas id="rng-recovered"></canvas>
+          </div>
+        </div>
+        <p id="rng-msg" class="rng-msg" aria-live="polite"></p>
+        <p class="note"><span data-i18n="rng.note.a">このツールの「暗号化」タブは </span><code>crypto.getRandomValues</code><span data-i18n="rng.note.b">（予測不能）を使うので、攻撃者はシードを知りようがなく、この復元はできません。予測できる乱数（</span><code>Math.random</code><span data-i18n="rng.note.c"> やシード固定の擬似乱数）を秘密分散に使ってはいけない、という教訓です。</span></p>
+      </div>
+    </section>
+
     <!-- Theory -->
     <section id="theory" class="tab">
-      <h2>理論（研究）</h2>
+      <h2 data-i18n="th.h2">理論（研究）</h2>
 
       <div class="accordion">
         <button class="accordion-header" type="button" aria-expanded="false">
-          <span>視覚暗号の基本原理</span>
+          <span data-i18n="th.a1.title">視覚暗号の基本原理</span>
           <span class="accordion-icon">▼</span>
         </button>
         <div class="accordion-content">
           <div class="accordion-body">
-            <p><strong>視覚暗号（Visual Cryptography）</strong>は、1994年に <strong>Moni Naor</strong> と <strong>Adi Shamir</strong> によって提案された暗号方式です。</p>
-            <p>通常の暗号は「暗号文＋鍵→復号アルゴリズム→平文」という流れを取りますが、視覚暗号では <strong>復号に計算処理を必要とせず、人間の目そのものが復号器</strong> となります。</p>
+            <p><strong data-i18n="th.a1.p1a">視覚暗号（Visual Cryptography）</strong><span data-i18n="th.a1.p1b">は、1994年に </span><strong>Moni Naor</strong><span data-i18n="th.a1.p1c"> と </span><strong>Adi Shamir</strong><span data-i18n="th.a1.p1d"> によって提案された暗号方式です。</span></p>
+            <p><span data-i18n="th.a1.p2a">通常の暗号は「暗号文＋鍵→復号アルゴリズム→平文」という流れを取りますが、視覚暗号では </span><strong data-i18n="th.a1.p2b">復号に計算処理を必要とせず、人間の目そのものが復号器</strong><span data-i18n="th.a1.p2c"> となります。</span></p>
 
             <div class="principle-example">
-              <h5>基本的な仕組み（このツールは2×2に拡張）</h5>
-              <p>秘密画像の1ピクセルを、2×2の4サブピクセル（うち2つが黒）のブロックに置き換えます。黒2つの置き方は6通りあり、ピクセルごとに乱数で1つ選びます。</p>
+              <h5 data-i18n="th.a1.exTitle">基本的な仕組み（このツールは2×2に拡張）</h5>
+              <p data-i18n="th.a1.exP">秘密画像の1ピクセルを、2×2の4サブピクセル（うち2つが黒）のブロックに置き換えます。黒2つの置き方は6通りあり、ピクセルごとに乱数で1つ選びます。</p>
 
-              <p><strong>白いピクセル</strong>の場合（両シェアに同じブロック）：</p>
+              <p><strong data-i18n="th.a1.whiteTitle">白いピクセルの場合（両シェアに同じブロック）：</strong></p>
               <div class="pixel-demo">
-                シェアA: ■□ ／ □■<br>
-                シェアB: ■□ ／ □■<br>
-                重ね合わせ: ■□ ／ □■ → 黒2つ（灰色に見える）
+                <span class="pixel-line" data-i18n="th.a1.whiteL1">シェアA: ■□ ／ □■</span>
+                <span class="pixel-line" data-i18n="th.a1.whiteL2">シェアB: ■□ ／ □■</span>
+                <span class="pixel-line" data-i18n="th.a1.whiteL3">重ね合わせ: ■□ ／ □■ → 黒2つ（灰色に見える）</span>
               </div>
 
-              <p><strong>黒いピクセル</strong>の場合（シェアBは反転）：</p>
+              <p><strong data-i18n="th.a1.blackTitle">黒いピクセルの場合（シェアBは反転）：</strong></p>
               <div class="pixel-demo">
-                シェアA: ■□ ／ □■<br>
-                シェアB: □■ ／ ■□<br>
-                重ね合わせ: ■■ ／ ■■ → 黒4つ（黒く見える）
+                <span class="pixel-line" data-i18n="th.a1.blackL1">シェアA: ■□ ／ □■</span>
+                <span class="pixel-line" data-i18n="th.a1.blackL2">シェアB: □■ ／ ■□</span>
+                <span class="pixel-line" data-i18n="th.a1.blackL3">重ね合わせ: ■■ ／ ■■ → 黒4つ（黒く見える）</span>
               </div>
             </div>
 
-            <p>👉 白は「黒2つ（灰）」、黒は「黒4つ（濃い黒）」になります。この濃さの差が、重ねたときに秘密として見えます。</p>
+            <p data-i18n="th.a1.concl">👉 白は「黒2つ（灰）」、黒は「黒4つ（濃い黒）」になります。この濃さの差が、重ねたときに秘密として見えます。</p>
           </div>
         </div>
       </div>
 
       <div class="accordion">
         <button class="accordion-header" type="button" aria-expanded="false">
-          <span>視覚暗号の特徴</span>
+          <span data-i18n="th.a2.title">視覚暗号の特徴</span>
           <span class="accordion-icon">▼</span>
         </button>
         <div class="accordion-content">
           <div class="accordion-body">
             <ul>
-              <li><strong>人間の目で復号</strong><br>PCやアルゴリズム不要。シェアを重ねるだけで秘密が復元できる。</li>
-              <li><strong>単独シェアは情報を持たない</strong><br>各シェアのブロックは、白でも黒でも6パターンに一様に散らばる。<strong>予測不能な乱数</strong>（<code>crypto.getRandomValues</code>）でパターンを選ぶので、1枚だけでは元が白か黒か手がかりが残らない。逆に <code>Math.random</code> のように予測できる乱数だと、片方のシェアと乱数列から秘密を復元できてしまう。</li>
-              <li><strong>ピクセル拡張</strong><br>秘密画像の1ピクセルを複数のサブピクセルに置き換えるため、シェアが大きくなる。</li>
-              <li><strong>白黒画像向け</strong><br>基本は2値画像。グレースケールやカラー対応は拡張手法が必要。</li>
+              <li><strong data-i18n="th.a2.l1s">人間の目で復号</strong><br><span data-i18n="th.a2.l1">PCやアルゴリズム不要。シェアを重ねるだけで秘密が復元できる。</span></li>
+              <li><strong data-i18n="th.a2.l2s">単独シェアは情報を持たない</strong><br><span data-i18n="th.a2.l2a">各シェアのブロックは、白でも黒でも6パターンに一様に散らばる。</span><strong data-i18n="th.a2.l2b">予測不能な乱数</strong><span>（</span><code>crypto.getRandomValues</code><span>）</span><span data-i18n="th.a2.l2c">でパターンを選ぶので、1枚だけでは元が白か黒か手がかりが残らない。逆に </span><code>Math.random</code><span data-i18n="th.a2.l2d"> のように予測できる乱数だと、片方のシェアと乱数列から秘密を復元できてしまう。</span></li>
+              <li><strong data-i18n="th.a2.l3s">ピクセル拡張</strong><br><span data-i18n="th.a2.l3">秘密画像の1ピクセルを複数のサブピクセルに置き換えるため、シェアが大きくなる。</span></li>
+              <li><strong data-i18n="th.a2.l4s">白黒画像向け</strong><br><span data-i18n="th.a2.l4">基本は2値画像。グレースケールやカラー対応は拡張手法が必要。</span></li>
             </ul>
           </div>
         </div>
@@ -188,24 +224,24 @@
 
       <div class="accordion">
         <button class="accordion-header" type="button" aria-expanded="false">
-          <span>VSSS（視覚復号型秘密分散法）への発展</span>
+          <span data-i18n="th.a3.title">VSSS（視覚復号型秘密分散法）への発展</span>
           <span class="accordion-icon">▼</span>
         </button>
         <div class="accordion-content">
           <div class="accordion-body">
-            <p><strong>VSSS</strong> = <strong>V</strong>isual <strong>S</strong>ecret <strong>S</strong>haring <strong>S</strong>cheme（視覚復号型秘密分散法）</p>
+            <p><strong>VSSS</strong> = <strong>V</strong>isual <strong>S</strong>ecret <strong>S</strong>haring <strong>S</strong>cheme<span data-i18n="th.a3.p1">（視覚復号型秘密分散法）</span></p>
 
-            <h4>(2,2) スキーム → (k,n) スキーム</h4>
-            <p>2枚で復元する方式から、n枚のうちk枚以上で復元できる方式へ一般化。</p>
+            <h4 data-i18n="th.a3.h1">(2,2) スキーム → (k,n) スキーム</h4>
+            <p data-i18n="th.a3.p2">2枚で復元する方式から、n枚のうちk枚以上で復元できる方式へ一般化。</p>
 
-            <h4>秘密分散共有との融合</h4>
-            <p>暗号理論の秘密分散法と同様、複数人がシェアを持ち寄らないと復元できない。</p>
+            <h4 data-i18n="th.a3.h2">秘密分散共有との融合</h4>
+            <p data-i18n="th.a3.p3">暗号理論の秘密分散法と同様、複数人がシェアを持ち寄らないと復元できない。</p>
 
-            <h4>拡張スキーム</h4>
+            <h4 data-i18n="th.a3.h3">拡張スキーム</h4>
             <ul>
-              <li>グレースケール・カラー対応（ビットプレーン分解、EVCS）</li>
-              <li>効率的な非拡張型スキーム</li>
-              <li>誤り訂正機能付きスキーム</li>
+              <li data-i18n="th.a3.l1">グレースケール・カラー対応（ビットプレーン分解、EVCS）</li>
+              <li data-i18n="th.a3.l2">効率的な非拡張型スキーム</li>
+              <li data-i18n="th.a3.l3">誤り訂正機能付きスキーム</li>
             </ul>
           </div>
         </div>
@@ -213,48 +249,48 @@
 
       <div class="accordion">
         <button class="accordion-header" type="button" aria-expanded="false">
-          <span>VSSS の実用的応用例</span>
+          <span data-i18n="th.a4.title">VSSS の実用的応用例</span>
           <span class="accordion-icon">▼</span>
         </button>
         <div class="accordion-content">
           <div class="accordion-body">
-            <h4>認証・アクセス制御</h4>
-            <p>2要素認証や入場確認に利用可能。シェアを重ねると認証マークが現れる。</p>
+            <h4 data-i18n="th.a4.h1">認証・アクセス制御</h4>
+            <p data-i18n="th.a4.p1">2要素認証や入場確認に利用可能。シェアを重ねると認証マークが現れる。</p>
 
-            <h4>偽造防止・透かし</h4>
-            <p>チケット、商品ラベル、証明書に仕込み、真偽判定に活用。</p>
+            <h4 data-i18n="th.a4.h2">偽造防止・透かし</h4>
+            <p data-i18n="th.a4.p2">チケット、商品ラベル、証明書に仕込み、真偽判定に活用。</p>
 
-            <h4>セキュア情報配布</h4>
-            <p>新聞・雑誌に片方のシェアを印刷、会員カードを重ねると秘密が見える。</p>
+            <h4 data-i18n="th.a4.h3">セキュア情報配布</h4>
+            <p data-i18n="th.a4.p3">新聞・雑誌に片方のシェアを印刷、会員カードを重ねると秘密が見える。</p>
 
-            <h4>QRコードとの融合</h4>
-            <p>複数シェアを重ねると有効なQRコードが読める仕組み。BEC防止やユーザー認証に応用。</p>
+            <h4 data-i18n="th.a4.h4">QRコードとの融合</h4>
+            <p data-i18n="th.a4.p4">複数シェアを重ねると有効なQRコードが読める仕組み。BEC防止やユーザー認証に応用。</p>
 
-            <h4>教育用途</h4>
-            <p>「複数人で秘密を守る」仕組みを直感的に体験でき、暗号教育に適する。</p>
+            <h4 data-i18n="th.a4.h5">教育用途</h4>
+            <p data-i18n="th.a4.p5">「複数人で秘密を守る」仕組みを直感的に体験でき、暗号教育に適する。</p>
           </div>
         </div>
       </div>
 
       <div class="accordion">
         <button class="accordion-header" type="button" aria-expanded="false">
-          <span>このツールについて</span>
+          <span data-i18n="th.a5.title">このツールについて</span>
           <span class="accordion-icon">▼</span>
         </button>
         <div class="accordion-content">
           <div class="accordion-body">
-            <p>本ツールは、「生成AIで作るセキュリティツール100」プロジェクトの一環として開発されました。</p>
-            <p>このプロジェクトでは、AIの支援を活用しながら、セキュリティに関連するさまざまなツールを100日間にわたり制作・公開していく取り組みを行っています。</p>
+            <p data-i18n="th.a5.p1">本ツールは、「生成AIで作るセキュリティツール100」プロジェクトの一環として開発されました。</p>
+            <p data-i18n="th.a5.p2">このプロジェクトでは、AIの支援を活用しながら、セキュリティに関連するさまざまなツールを100日間にわたり制作・公開していく取り組みを行っています。</p>
 
-            <h4>本ツールの構成</h4>
+            <h4 data-i18n="th.a5.h1">本ツールの構成</h4>
             <ul>
-              <li><strong>基礎知識</strong> — 視覚暗号の基本概念と特徴を解説</li>
-              <li><strong>暗号化</strong> — アップロードした画像を2枚のシェアに分離</li>
-              <li><strong>復号</strong> — 2枚のシェアを重ね合わせ、目視で秘密を確認</li>
-              <li><strong>理論</strong> — グレースケールやカラー拡張、(k,n) スキーム、応用例を紹介</li>
+              <li><strong data-i18n="th.a5.l1s">基礎知識</strong><span data-i18n="th.a5.l1"> — 視覚暗号の基本概念と特徴を解説</span></li>
+              <li><strong data-i18n="th.a5.l2s">暗号化</strong><span data-i18n="th.a5.l2"> — アップロードした画像を2枚のシェアに分離</span></li>
+              <li><strong data-i18n="th.a5.l3s">復号</strong><span data-i18n="th.a5.l3"> — 2枚のシェアを重ね合わせ、目視で秘密を確認</span></li>
+              <li><strong data-i18n="th.a5.l4s">理論</strong><span data-i18n="th.a5.l4"> — グレースケールやカラー拡張、(k,n) スキーム、応用例を紹介</span></li>
             </ul>
 
-            <p>プロジェクトの詳細については、<a href="https://akademeia.info/?page_id=42163" target="_blank" rel="noopener noreferrer">こちらのページ</a>をご覧ください。</p>
+            <p><span data-i18n="th.a5.p3a">プロジェクトの詳細については、</span><a href="https://akademeia.info/?page_id=42163" target="_blank" rel="noopener noreferrer" data-i18n="th.a5.p3link">こちらのページ</a><span data-i18n="th.a5.p3b">をご覧ください。</span></p>
           </div>
         </div>
       </div>
@@ -263,14 +299,16 @@
 
   <footer>
     <div class="footer">
-      🔗 GitHubリポジトリはこちら（
+      <span data-i18n="ui.footerPre">🔗 GitHubリポジトリはこちら（</span>
       <a href="https://github.com/ipusiron/visual-cryptography-cipherlab" target="_blank" rel="noopener noreferrer">
         ipusiron/visual-cryptography-cipherlab
-      </a> ）
+      </a><span data-i18n="ui.footerPost"> ）</span>
     </div>
   </footer>
 
   <script src="./js/vc-core.js"></script>
+  <script src="./js/messages.js"></script>
+  <script src="./js/i18n.js"></script>
   <script src="./script.js"></script>
 </body>
 </html>
