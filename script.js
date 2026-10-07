@@ -139,17 +139,15 @@ document.querySelectorAll('.accordion-header').forEach(header => {
     document.querySelectorAll('.accordion-header').forEach(otherHeader => {
       if (otherHeader !== header) {
         otherHeader.classList.remove('active');
+        otherHeader.setAttribute('aria-expanded', 'false');
         otherHeader.nextElementSibling.classList.remove('active');
       }
     });
 
     // Toggle current accordion
-    if (isActive) {
-      header.classList.remove('active');
-      content.classList.remove('active');
-    } else {
-      header.classList.add('active');
-      content.classList.add('active');
-    }
+    const next = !isActive;
+    header.classList.toggle('active', next);
+    header.setAttribute('aria-expanded', String(next));
+    content.classList.toggle('active', next);
   });
 });

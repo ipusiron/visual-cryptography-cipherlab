@@ -1,7 +1,8 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ja">
 <head>
   <meta charset="utf-8" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data: blob:; connect-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none';" />
   <title>VisualCryptography CipherLab</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link rel="stylesheet" href="./style.css" />
@@ -11,10 +12,10 @@
     <h1>VisualCryptography CipherLab</h1>
     <p class="subtitle">視覚暗号の仕組みを2枚のシェアで学べる体験ツールです</p>
     <nav class="tabs">
-      <button data-tab="basics" class="active">基礎知識</button>
-      <button data-tab="encrypt">暗号化</button>
-      <button data-tab="decode">復号</button>
-      <button data-tab="theory">理論</button>
+      <button type="button" data-tab="basics" class="active">基礎知識</button>
+      <button type="button" data-tab="encrypt">暗号化</button>
+      <button type="button" data-tab="decode">復号</button>
+      <button type="button" data-tab="theory">理論</button>
     </nav>
   </header>
 
@@ -40,7 +41,7 @@
       <div class="panel">
         <div class="file-label-with-help">
           <span>画像ファイルを選択</span>
-          <span class="help-icon">？
+          <span class="help-icon" tabindex="0">？
             <span class="tooltip">暗号化したい画像を選択してください</span>
           </span>
         </div>
@@ -48,35 +49,34 @@
         <div class="controls">
           <label class="label-with-help">
             しきい値
-            <span class="help-icon">？
+            <span class="help-icon" tabindex="0">？
               <span class="tooltip">白黒変換の境界値（0-255）</span>
             </span>
             <input type="range" id="thresh" min="0" max="255" value="128" />
           </label>
-          <button id="btn-generate">2枚のシェアを生成
-            <span class="help-icon">？
-              <span class="tooltip">画像を2枚の秘密分散画像に変換</span>
-            </span>
-          </button>
+          <button type="button" id="btn-generate">2枚のシェアを生成</button>
+          <span class="help-icon" tabindex="0">？
+            <span class="tooltip">画像を2枚の秘密分散画像に変換</span>
+          </span>
         </div>
         <div class="canvas-row">
           <div>
             <h3>シェア A
-              <span class="help-icon">？
+              <span class="help-icon" tabindex="0">？
                 <span class="tooltip">1枚目の分散画像（単独では無意味）</span>
               </span>
             </h3>
             <canvas id="shareA"></canvas>
-            <button data-dl="shareA">シェアAをダウンロード</button>
+            <button type="button" data-dl="shareA">シェアAをダウンロード</button>
           </div>
           <div>
             <h3>シェア B
-              <span class="help-icon">？
+              <span class="help-icon" tabindex="0">？
                 <span class="tooltip">2枚目の分散画像（単独では無意味）</span>
               </span>
             </h3>
             <canvas id="shareB"></canvas>
-            <button data-dl="shareB">シェアBをダウンロード</button>
+            <button type="button" data-dl="shareB">シェアBをダウンロード</button>
           </div>
         </div>
       </div>
@@ -91,7 +91,7 @@
           <label>
             <div class="file-label-with-help">
               <span>シェア A</span>
-              <span class="help-icon">？
+              <span class="help-icon" tabindex="0">？
                 <span class="tooltip">1枚目の分散画像ファイル</span>
               </span>
             </div>
@@ -100,7 +100,7 @@
           <label>
             <div class="file-label-with-help">
               <span>シェア B</span>
-              <span class="help-icon">？
+              <span class="help-icon" tabindex="0">？
                 <span class="tooltip">2枚目の分散画像ファイル</span>
               </span>
             </div>
@@ -110,23 +110,22 @@
         <div class="controls">
           <label class="label-with-help">
             横方向オフセット
-            <span class="help-icon">？
+            <span class="help-icon" tabindex="0">？
               <span class="tooltip">位置調整用の横方向のずれ量</span>
             </span>
             <input type="number" id="offx" value="0" step="1" />
           </label>
           <label class="label-with-help">
             縦方向オフセット
-            <span class="help-icon">？
+            <span class="help-icon" tabindex="0">？
               <span class="tooltip">位置調整用の縦方向のずれ量</span>
             </span>
             <input type="number" id="offy" value="0" step="1" />
           </label>
-          <button id="btn-overlay">重ね合わせる
-            <span class="help-icon">？
-              <span class="tooltip">2枚を重ねて秘密画像を表示</span>
-            </span>
-          </button>
+          <button type="button" id="btn-overlay">重ね合わせる</button>
+          <span class="help-icon" tabindex="0">？
+            <span class="tooltip">2枚を重ねて秘密画像を表示</span>
+          </span>
         </div>
         <canvas id="overlay"></canvas>
       </div>
@@ -137,7 +136,7 @@
       <h2>理論（研究）</h2>
 
       <div class="accordion">
-        <button class="accordion-header">
+        <button class="accordion-header" type="button" aria-expanded="false">
           <span>視覚暗号の基本原理</span>
           <span class="accordion-icon">▼</span>
         </button>
@@ -169,7 +168,7 @@
       </div>
 
       <div class="accordion">
-        <button class="accordion-header">
+        <button class="accordion-header" type="button" aria-expanded="false">
           <span>視覚暗号の特徴</span>
           <span class="accordion-icon">▼</span>
         </button>
@@ -186,7 +185,7 @@
       </div>
 
       <div class="accordion">
-        <button class="accordion-header">
+        <button class="accordion-header" type="button" aria-expanded="false">
           <span>VSSS（視覚復号型秘密分散法）への発展</span>
           <span class="accordion-icon">▼</span>
         </button>
@@ -211,7 +210,7 @@
       </div>
 
       <div class="accordion">
-        <button class="accordion-header">
+        <button class="accordion-header" type="button" aria-expanded="false">
           <span>VSSS の実用的応用例</span>
           <span class="accordion-icon">▼</span>
         </button>
@@ -236,7 +235,7 @@
       </div>
 
       <div class="accordion">
-        <button class="accordion-header">
+        <button class="accordion-header" type="button" aria-expanded="false">
           <span>このツールについて</span>
           <span class="accordion-icon">▼</span>
         </button>
@@ -253,7 +252,7 @@
               <li><strong>理論</strong> — グレースケールやカラー拡張、(k,n) スキーム、応用例を紹介</li>
             </ul>
 
-            <p>プロジェクトの詳細については、<a href="https://akademeia.info/?page_id=42163" target="_blank">こちらのページ</a>をご覧ください。</p>
+            <p>プロジェクトの詳細については、<a href="https://akademeia.info/?page_id=42163" target="_blank" rel="noopener noreferrer">こちらのページ</a>をご覧ください。</p>
           </div>
         </div>
       </div>
@@ -263,7 +262,7 @@
   <footer>
     <div class="footer">
       🔗 GitHubリポジトリはこちら（
-      <a href="https://github.com/ipusiron/visual-cryptography-cipherlab" target="_blank">
+      <a href="https://github.com/ipusiron/visual-cryptography-cipherlab" target="_blank" rel="noopener noreferrer">
         ipusiron/visual-cryptography-cipherlab
       </a> ）
     </div>
