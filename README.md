@@ -45,6 +45,8 @@ A hands-on web tool to learn **Visual Cryptography (VSS/VSSS)** with simple 2-sh
 
 **Day070 - 生成AIで作るセキュリティツール100**
 
+[English](README.en.md) · 日本語
+
 **VisualCryptography CipherLab**は、視覚暗号（Visual Cryptography）の基本を体験できるWebツールです。
 
 画像を2枚のシェアに分離し、それぞれ単独では意味を持たないが、重ね合わせることで秘密の画像が浮かび上がります。
@@ -70,16 +72,18 @@ A hands-on web tool to learn **Visual Cryptography (VSS/VSSS)** with simple 2-sh
 
 ## ✨ 機能
 
-- **4つのタブ構成**
+- **5つのタブ構成**
   - **基礎知識** — 視覚暗号の基本概念と特徴を学習
   - **暗号化** — 画像ファイルを2枚のランダムなシェアに分割
   - **復号** — 2枚のシェアを重ねて秘密画像を復元
+  - **乱数のわな** — 予測できる乱数だと片方のシェアだけで秘密が復元できてしまうことを体験
   - **理論** — アコーディオン形式で発展的な理論と応用例を解説
 
 - **直感的なUI**
   - ライトモード対応の見やすいデザイン
   - ヘルプアイコン（？）にマウス・タップ・キーボードで詳細説明を表示
   - レスポンシブ対応でさまざまなデバイスで利用可能
+  - 日本語／英語の切り替え（画面右上のボタン、`?lang=ja`・`?lang=en` でも指定可）
 
 - **画像処理機能**
   - 画像ファイルのドラッグ&ドロップ対応
@@ -93,7 +97,7 @@ A hands-on web tool to learn **Visual Cryptography (VSS/VSSS)** with simple 2-sh
   - Canvas APIによる高速な画像合成
 
 - **教育コンテンツ**
-  - 視覚暗号の基本原理をアニメーション付きで解説
+  - 視覚暗号の基本原理を図解付きで解説
   - VSSS（Visual Secret Sharing Scheme）の理論背景
   - 実用的な応用例（認証、偽造防止、QRコード融合など）
   - サンプル画像とPython生成スクリプトを提供
@@ -248,15 +252,19 @@ visual-cryptography-cipherlab/
 ├── style.css              # ライトモード対応のスタイル定義
 ├── script.js               # 画面の処理（UI・生成・重ね合わせ）
 ├── js/
-│   └── vc-core.js          # 計算部（2値化・パターン・シェア生成・重ね合わせ。DOMなし）
+│   ├── vc-core.js          # 計算部（2値化・パターン・シェア生成・重ね合わせ・乱数のデモ。DOMなし）
+│   ├── messages.js         # 画面に出す文言（日本語・英語）
+│   └── i18n.js             # 言語の決定と切り替え
 ├── test/
 │   ├── load.js             # js/ のスクリプトをテストに読み込む
-│   └── core.test.js        # 2値化・パターン・シェア・重ね合わせ・偏りなしの乱数
+│   ├── core.test.js        # 2値化・パターン・シェア・重ね合わせ・偏りなしの乱数・乱数のデモ
+│   └── i18n.test.js        # 日英の辞書のキー・初期の言語
 ├── .github/workflows/test.yml # push・pull_request で node --test
 ├── package.json            # npm test の設定（依存なし）
 ├── CLAUDE.md               # Claude Code用の開発ガイド
 ├── LICENSE                 # MITライセンス
 ├── README.md               # プロジェクト説明（このファイル）
+├── README.en.md            # 英語版のドキュメント
 ├── .nojekyll               # GitHub Pages設定
 ├── assets/                 # スクリーンショット・画像素材
 │   ├── screenshot.png      # アプリケーションのスクリーンショット

@@ -1,3 +1,20 @@
+// i18n: 言語を決めて静的な文言を当て、言語ボタンを配線する
+const M = window.VCMessages;
+const I18N = window.VCI18n;
+const t = (key, vars) => M.t(key, vars);
+let relabel = () => {};
+(function initLang(){
+  const lang = I18N.initialLanguage(location.search, I18N.readSaved(), navigator.languages);
+  I18N.use(lang, document);
+  const btn = document.getElementById('lang-btn');
+  if (btn) btn.addEventListener('click', () => {
+    const next = M.getLanguage() === 'ja' ? 'en' : 'ja';
+    I18N.use(next, document);
+    I18N.save(next);
+    relabel();
+  });
+})();
+
 // Tab switching
 document.querySelectorAll('.tabs button').forEach(btn => {
   btn.addEventListener('click', () => {
@@ -67,7 +84,7 @@ function renderShares(bin,w,h){
 
 btnGen?.addEventListener('click',async()=>{
   const file=encInput?.files?.[0];
-  if(!file) return alert('まず画像をアップロードしてください。');
+  if(!file) return alert(t('msg.needUpload'));
   try{
     const img=await loadImage(file);
     const thr=Number.isFinite(+threshEl.value)?+threshEl.value:128;
@@ -75,7 +92,7 @@ btnGen?.addEventListener('click',async()=>{
     renderShares(bin,w,h);
     setDownloadsEnabled(true);
   }catch(e){
-    alert('画像の読み込みに失敗しました。別の画像を試してください。');
+    alert(t('msg.loadFail'));
   }
 });
 
@@ -113,7 +130,7 @@ function loadAsCanvas(file){
 
 btnOverlay?.addEventListener('click',async()=>{
   const fA=decA?.files?.[0],fB=decB?.files?.[0];
-  if(!fA||!fB) return alert('両方のシェアを読み込んでください。');
+  if(!fA||!fB) return alert(t('msg.needBoth'));
   try{
     const [cA,cB]=await Promise.all([loadAsCanvas(fA),loadAsCanvas(fB)]);
     const W=Math.max(cA.width,cB.width),H=Math.max(cA.height,cB.height);
@@ -125,7 +142,7 @@ btnOverlay?.addEventListener('click',async()=>{
     ctx.drawImage(cB,(+offx.value||0),(+offy.value||0));
     ctx.globalCompositeOperation='source-over';
   }catch(e){
-    alert('シェアの読み込みに失敗しました。別の画像を試してください。');
+    alert(t('msg.overlayFail'));
   }
 });
 
@@ -140,6 +157,9 @@ btnOverlay?.addEventListener('click',async()=>{
   const msg=document.getElementById('rng-msg');
   if(!btnGen) return;
   let state=null; // {w,h,bin,shareB(blocks)}
+  let msgKey=null;
+  function setMsg(key){ msgKey=key; msg.textContent=key?t(key):''; }
+  relabel=()=>{ if(msgKey) msg.textContent=t(msgKey); };
 
   // 秘密画像を作る（「秘密」の文字を描く）。返り値は2値（1=黒）
   function makeSecret(){
@@ -186,22 +206,20 @@ btnOverlay?.addEventListener('click',async()=>{
     drawBin(cvSecret,bin,w,h,2);
     drawBlocks(cvShareB,shareB,w,h);
     cvRec.width=cvShareB.width;cvRec.height=cvShareB.height;cvRec.getContext('2d').clearRect(0,0,cvRec.width,cvRec.height);
-    msg.textContent='弱い乱数（シード固定の擬似乱数）でシェアBを作りました。単独ではノイズに見えます。「復元（攻撃）」を押してください。';
+    setMsg('msg.rngGenerated');
   });
 
   btnAtk.addEventListener('click',()=>{
-    if(!state) return alert('先に「弱い乱数でシェアを作る」を押してください。');
+    if(!state) return alert(t('msg.rngNeedGen'));
     const {w,h,shareB,bin}=state;
     const seed=Number.isFinite(+seedEl.value)?(+seedEl.value|0):12345;
     // 攻撃者はシードから乱数列を再現し、シェアBと照合して秘密を復元する
     const idx=VC.patternIndices(w*h,VC.lcgBytes(seed));
     const recovered=VC.recoverFromShareB(shareB,idx);
-    if(!recovered){ msg.textContent='このシードでは復元できませんでした（生成時と違うシードです）。生成に使ったシードを入れてください。'; return; }
+    if(!recovered){ setMsg('msg.rngWrongSeed'); return; }
     drawBin(cvRec,recovered,w,h,2);
     const match=recovered.every((v,i)=>v===bin[i]);
-    msg.textContent=match
-      ? '復元成功。シェアB1枚とシードだけで、秘密が丸ごと復元できました。予測できる乱数は危険です。'
-      : '一部だけ復元できました（シードがずれています）。';
+    setMsg(match ? 'msg.rngRecovered' : 'msg.rngPartial');
   });
 })();
 
