@@ -15,31 +15,25 @@ const btnGen = document.getElementById('btn-generate');
 const shareA = document.getElementById('shareA');
 const shareB = document.getElementById('shareB');
 
-const PATTERNS = [
-  [1,1,0,0],[1,0,1,0],[1,0,0,1],
-  [0,1,1,0],[0,1,0,1],[0,0,1,1]
-];
+const VC = window.VCCore;
+// シェアのパターンは予測不能な乱数で選ぶ（CSPRNG）。これが単独シェアの秘匿性の前提
+const randomBytes = VC.cryptoBytes(window.crypto);
 
 function loadImage(file){
   return new Promise((resolve,reject)=>{
     const img = new Image();
-    img.onload = ()=> resolve(img);
-    img.onerror = reject;
+    img.onload = ()=> { URL.revokeObjectURL(img.src); resolve(img); };
+    img.onerror = (e)=> { URL.revokeObjectURL(img.src); reject(e); };
     img.src = URL.createObjectURL(file);
   });
 }
 
-function toBinarized(img, thr=128){
+function toBinarized(img, thr){
   const c=document.createElement('canvas'), ctx=c.getContext('2d');
   c.width = img.naturalWidth; c.height = img.naturalHeight;
   ctx.drawImage(img,0,0);
   const im = ctx.getImageData(0,0,c.width,c.height);
-  const out = new Uint8ClampedArray(c.width*c.height);
-  for(let i=0;i<im.data.length;i+=4){
-    const y = 0.299*im.data[i] + 0.587*im.data[i+1] + 0.114*im.data[i+2];
-    out[i/4] = (y >= thr ? 0 : 1);
-  }
-  return {w:c.width,h:c.height,bin:out};
+  return {w:c.width, h:c.height, bin:VC.binarize(im.data, c.width, c.height, thr)};
 }
 
 function renderShares(bin,w,h){
@@ -61,15 +55,10 @@ function renderShares(bin,w,h){
   for(let y=0;y<h;y++){
     for(let x=0;x<w;x++){
       const v=bin[y*w+x];
-      const p=PATTERNS[(Math.random()*PATTERNS.length)|0];
-      const inv=p.map(b=> b?0:1);
-      if(v===0){
-        setBlock(imgA,x*2,y*2,p);
-        setBlock(imgB,x*2,y*2,p);
-      }else{
-        setBlock(imgA,x*2,y*2,p);
-        setBlock(imgB,x*2,y*2,inv);
-      }
+      const p=VC.pickPattern(randomBytes);
+      const {a,b}=VC.sharesForPixel(v,p);
+      setBlock(imgA,x*2,y*2,a);
+      setBlock(imgB,x*2,y*2,b);
     }
   }
   ctxA.putImageData(imgA,0,0);
@@ -79,12 +68,21 @@ function renderShares(bin,w,h){
 btnGen?.addEventListener('click',async()=>{
   const file=encInput?.files?.[0];
   if(!file) return alert('まず画像をアップロードしてください。');
-  const img=await loadImage(file);
-  const {w,h,bin}=toBinarized(img,+threshEl.value||128);
-  renderShares(bin,w,h);
+  try{
+    const img=await loadImage(file);
+    const thr=Number.isFinite(+threshEl.value)?+threshEl.value:128;
+    const {w,h,bin}=toBinarized(img,thr);
+    renderShares(bin,w,h);
+    setDownloadsEnabled(true);
+  }catch(e){
+    alert('画像の読み込みに失敗しました。別の画像を試してください。');
+  }
 });
 
-document.querySelectorAll('button[data-dl]').forEach(btn=>{
+const dlButtons=[...document.querySelectorAll('button[data-dl]')];
+function setDownloadsEnabled(on){ dlButtons.forEach(b=>{ b.disabled=!on; }); }
+setDownloadsEnabled(false); // シェアを生成するまでは、空のPNGを保存できないようにする
+dlButtons.forEach(btn=>{
   btn.addEventListener('click',()=>{
     const id=btn.getAttribute('data-dl');
     const cv=document.getElementById(id);
@@ -116,15 +114,19 @@ function loadAsCanvas(file){
 btnOverlay?.addEventListener('click',async()=>{
   const fA=decA?.files?.[0],fB=decB?.files?.[0];
   if(!fA||!fB) return alert('両方のシェアを読み込んでください。');
-  const [cA,cB]=await Promise.all([loadAsCanvas(fA),loadAsCanvas(fB)]);
-  const W=Math.max(cA.width,cB.width),H=Math.max(cA.height,cB.height);
-  overlay.width=W;overlay.height=H;
-  const ctx=overlay.getContext('2d');
-  ctx.clearRect(0,0,W,H);
-  ctx.drawImage(cA,0,0);
-  ctx.globalCompositeOperation='darken';
-  ctx.drawImage(cB,(+offx.value||0),(+offy.value||0));
-  ctx.globalCompositeOperation='source-over';
+  try{
+    const [cA,cB]=await Promise.all([loadAsCanvas(fA),loadAsCanvas(fB)]);
+    const W=Math.max(cA.width,cB.width),H=Math.max(cA.height,cB.height);
+    overlay.width=W;overlay.height=H;
+    const ctx=overlay.getContext('2d');
+    ctx.clearRect(0,0,W,H);
+    ctx.drawImage(cA,0,0);
+    ctx.globalCompositeOperation='darken';
+    ctx.drawImage(cB,(+offx.value||0),(+offy.value||0));
+    ctx.globalCompositeOperation='source-over';
+  }catch(e){
+    alert('シェアの読み込みに失敗しました。別の画像を試してください。');
+  }
 });
 
 // --- Accordion functionality ---
@@ -137,17 +139,15 @@ document.querySelectorAll('.accordion-header').forEach(header => {
     document.querySelectorAll('.accordion-header').forEach(otherHeader => {
       if (otherHeader !== header) {
         otherHeader.classList.remove('active');
+        otherHeader.setAttribute('aria-expanded', 'false');
         otherHeader.nextElementSibling.classList.remove('active');
       }
     });
 
     // Toggle current accordion
-    if (isActive) {
-      header.classList.remove('active');
-      content.classList.remove('active');
-    } else {
-      header.classList.add('active');
-      content.classList.add('active');
-    }
+    const next = !isActive;
+    header.classList.toggle('active', next);
+    header.setAttribute('aria-expanded', String(next));
+    content.classList.toggle('active', next);
   });
 });

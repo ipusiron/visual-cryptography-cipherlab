@@ -265,9 +265,9 @@ section p {
   border-radius: 6px;
   font-size: 13px;
   font-weight: normal;
-  white-space: nowrap;
-  min-width: 200px;
-  max-width: 300px;
+  white-space: normal;
+  width: max-content;
+  max-width: min(300px, 80vw);
   text-align: center;
   opacity: 0;
   visibility: hidden;
@@ -290,10 +290,17 @@ section p {
   border-top: 6px solid #333;
 }
 
-.help-icon:hover .tooltip {
+.help-icon:hover .tooltip,
+.help-icon:focus .tooltip,
+.help-icon:focus-within .tooltip {
   opacity: 1;
   visibility: visible;
   bottom: calc(100% + 12px);
+}
+
+.help-icon:focus-visible {
+  outline: 2px solid #2563eb;
+  outline-offset: 2px;
 }
 
 .label-with-help {
@@ -360,7 +367,7 @@ section p {
 }
 
 .accordion-content.active {
-  max-height: 1000px;
+  max-height: 4000px;
 }
 
 .accordion-body {
@@ -413,4 +420,15 @@ section p {
   padding: 8px;
   border-radius: 4px;
   margin: 8px 0;
+}
+
+/* 狭い画面では、復号のシェア入力を1カラムにする */
+@media (max-width: 600px) {
+  .file-grid {
+    grid-template-columns: 1fr;
+  }
+  .controls {
+    flex-direction: column;
+    align-items: stretch;
+  }
 }
