@@ -1,0 +1,11 @@
+{
+  "name": "visual-cryptography-cipherlab",
+  "version": "1.0.0",
+  "description": "VisualCryptography CipherLab — (2,2) visual cryptography",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test"
+  },
+  "license": "MIT"
+}
