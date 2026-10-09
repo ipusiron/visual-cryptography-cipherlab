@@ -155,6 +155,12 @@ Consider recording a black-and-white binary image on two sheets (shares).
 
 ## 🗺️ Example use: a map image
 
+Ways of using this tool in particular
+
+- Confirming that a picture appears from the difference in darkness (image and contrast classes): each original pixel spreads into a 2x2 block of 4 cells. For a white pixel the two shares use the same pattern, so overlaying them leaves 2 of the 4 cells black (half black). For a black pixel the two shares are inverted patterns, so overlaying them makes all 4 cells black. You can confirm that the overlaid picture appears from the darkness gap, white being half black and black being all black
+- Confirming that a single share leaks nothing (secret-sharing and perfect-secrecy classes): share A is the same one, chosen from 6 patterns, whether the original pixel is white or black. So seeing share A alone does not decide whether the pixel is white or black. You can confirm the perfect-secrecy property that one of the two shares alone leaks no information about the original picture
+- Confirming that you can recover only with both shares (2-of-2 secret sharing classes): the original pixel appears as a darkness gap only when you overlay the two shares (an OR per cell). Recovering the original black and white from share B needs to know which pattern was used (the arrangement on the share-A side). You can confirm the 2-of-2 secret-sharing mechanism where recovery fails if either of the two is missing
+
 You can also use this tool to "hide / share the location of a mark". For example, make two shares from a treasure map; overlaying them reveals the treasure location.
 
 Here we use `examples/map.png` (a map with a mark at Soma City) to generate and recover shares and confirm the marked location.
