@@ -222,6 +222,8 @@ Google Colabで"generate_vss_sample.ipynb"ファイルを実行した手順は�
 - **拡張スキーム**  
   グレースケール・カラー対応、効率的な非拡張型スキームなどの研究が進展。
 
+暗号理論の秘密分散法のうち、Blakleyの方式（超平面の交点から秘密を求める方式）は[Day126 BlakleySharing CipherLab](https://github.com/ipusiron/blakley-sharing-cipherlab)で試せます。
+
 ---
 
 ## 💡 VSSSの応用例

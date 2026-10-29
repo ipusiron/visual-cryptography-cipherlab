@@ -184,6 +184,8 @@ Here we use `examples/map.png` (a map with a mark at Soma City) to generate and 
 - **Extended schemes**
   Research has advanced on grayscale/color support and efficient non-expanding schemes.
 
+Among cryptographic secret sharing schemes, Blakley's scheme, which recovers the secret from the intersection of hyperplanes, can be tried in [Day126 BlakleySharing CipherLab](https://github.com/ipusiron/blakley-sharing-cipherlab).
+
 ---
 
 ## 💡 Applications of VSSS
