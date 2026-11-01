@@ -184,6 +184,12 @@ Here we use `examples/map.png` (a map with a mark at Soma City) to generate and 
 - **Extended schemes**
   Research has advanced on grayscale/color support and efficient non-expanding schemes.
 
+Among cryptographic secret sharing schemes, Shamir's scheme, which recovers the secret by computation from points on a polynomial, can be tried in [Day123 ShamirSharing CipherLab](https://github.com/ipusiron/shamir-sharing-cipherlab). Compare recovery by eye in this tool with recovery by computation.
+
+To split a real secret with Shamir's scheme and store it on paper, use [Day124 Scatter Seeds](https://github.com/ipusiron/scatter-seeds). Unlike this tool, which splits images, it splits text secrets and checks recovery from every threshold subset before printing.
+
+To try visual cryptography on printed paper, use [Day125 Overlay QR Shares](https://github.com/ipusiron/overlay-qr-shares), which splits a secret QR into 2–5 shares and reads the overlay with a camera. Use it as the next step after the on-screen (2,2) scheme in this tool.
+
 Among cryptographic secret sharing schemes, Blakley's scheme, which recovers the secret from the intersection of hyperplanes, can be tried in [Day126 BlakleySharing CipherLab](https://github.com/ipusiron/blakley-sharing-cipherlab).
 
 ---
