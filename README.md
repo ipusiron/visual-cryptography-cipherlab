@@ -222,6 +222,12 @@ Google Colabで"generate_vss_sample.ipynb"ファイルを実行した手順は�
 - **拡張スキーム**  
   グレースケール・カラー対応、効率的な非拡張型スキームなどの研究が進展。
 
+暗号理論の秘密分散法のうち、Shamirの方式（多項式上の点から秘密を計算で戻す方式）は[Day123 ShamirSharing CipherLab](https://github.com/ipusiron/shamir-sharing-cipherlab)で試せます。目で戻す本ツールと、計算で戻す方式を比べられます。
+
+Shamirの方式で本物の秘密を紙に分けて保管するときは、[Day124 Scatter Seeds](https://github.com/ipusiron/scatter-seeds)を使えます。画像を分ける本ツールと違い、文字列の秘密を分け、すべての組み合わせで復元を検査してから印刷します。
+
+視覚暗号を印刷した紙で試すときは、[Day125 Overlay QR Shares](https://github.com/ipusiron/overlay-qr-shares)で、秘密のQRを2〜5枚に分け、重ねたものをカメラで読み取れます。画面上で(2,2)を体験する本ツールの次の段階として使えます。
+
 暗号理論の秘密分散法のうち、Blakleyの方式（超平面の交点から秘密を求める方式）は[Day126 BlakleySharing CipherLab](https://github.com/ipusiron/blakley-sharing-cipherlab)で試せます。
 
 ---
