@@ -16,7 +16,7 @@ category_ja:
 category_en:
   - Visual Cryptography
 
-difficulty: 3
+difficulty: 2
 
 tags:
   - visual-cryptography
